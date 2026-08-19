@@ -5,7 +5,7 @@
 // =============================================
 
 const DATA_ux = [
-  {id:206,title:"Favorite에서 Collection으로(기능 확장 재정의)",credits:{UX:"Ellie"},category:"기능 히스토리",labels:[],models:["SP4000T 이후 전 모델"],date:"2026.05.18",author:"Ellie",authorInitial:"E",status:"확인완료",
+  {id:206,title:"Favorite에서 Collection으로(기능 확장 재정의)",credits:{UX:"Ellie"},category:"기능 히스토리",labels:["A&ultima"],models:["SP4000T 이후 전 모델"],date:"2026.05.18",author:"Ellie",authorInitial:"E",status:"확인완료",
    desc:"기존 Favorite(즐겨찾기)의 노래 단독 저장을 확장, 노래·앨범·아티스트·플레이리스트를 폴더별로 저장·관리하는 컬렉션으로 재정의. SP4000T부터 적용.",
    body:`■■ 기능 개요
 
@@ -524,4 +524,49 @@ PD20 문구에는 '기기 측면의 Hold 스위치'라고 위치가 명시돼 �
      {src:"images/history/Lock_pd5_quick.png",caption:"Lock_pd5_quick.png"}
    ],
    links:[{label:"Figma_UX",url:"https://www.figma.com/design/pat4EALAOO9XW7Hynp30Md/UX_Crimson_F_U?node-id=9368-9568&t=nQHmOPn112ZLgran-1"}]},
+  {id:210,title:"설정 - 배터리 보호 모드 상한값 선택",credits:{PM:"Jay",UX:"Ellie"},category:"기능 히스토리",labels:["RC"],models:["SP4000T"],date:"2026.08.19",author:"Ellie",authorInitial:"E",
+   desc:"기존 85% 단일 고정이던 배터리 보호 모드 충전 상한값을 80/85/90/95% 4단계 중 사용자가 직접 선택하도록 변경. SP4000T부터 적용.",
+   body:`■■ 결론
+
+배터리 보호 모드의 충전 상한값을 사용자가 직접 고를 수 있게 바뀌었습니다.
+기존에는 85% 하나로 고정이었으나, SP4000T부터 80 / 85 / 90 / 95% 네 단계 중에서 선택합니다.
+
+
+■■ 변경 전 / 후
+
+| 구분 | 변경 전 | 변경 후 |
+| --- | --- | --- |
+| 상한값 | 85% 단일 고정 | 80 / 85 / 90 / 95% |
+| 선택 주체 | 시스템 고정 | 사용자 선택 |
+| 적용 시점 | — | SP4000T부터 |
+
+
+■■ 왜 바뀌었나
+
+확인 필요. 아래 두 가지가 아직 안 채워져 있습니다.
+
+- 기존 상한값이 왜 85%였는지 (셀 보호 정책인지, 특정 근거값인지)
+- 4단계로 넓힌 배경이 사용자 요구인지, 배터리 스펙 변경에 따른 것인지
+
+→ Jay(PM)에게 확인 후 채울 것.
+
+
+■■ 버린 안
+
+확인 필요. (단계 수를 4개로 정한 이유, 100% 옵션을 두지 않은 이유 포함)
+
+
+■■ 출처
+
+SP4000T 사업계획서 — 신기능 '배터리 보호 모드' 항목. 세부 배경은 미확인.
+
+
+■■ 적용 현황 및 RC 계획
+
+| 모델 | 적용 여부 | RC 계획 |
+| --- | --- | --- |
+| A&ultima | ✅ SP4000T | — |
+| PD series | 미적용 | 확인 필요 |`,
+   tags:["RC","배터리보호모드","배터리","충전상한","충전","BatteryProtection","Battery","설정","SP4000T"],
+   links:[]},
 ];

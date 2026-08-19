@@ -642,60 +642,9 @@ mark{background:transparent;color:var(--cr-200);border-radius:0;padding:0;font-w
 #d-models{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 #d-models:empty{display:none}
 #d-title{font-size:24px;font-weight:600;color:var(--text-1);line-height:1.3;margin-bottom:8px}
-/* 제목 + 검수 상태 배지 행 */
+/* 제목 행 */
 #d-title-row{position:relative;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 #d-title-row #d-title{margin-bottom:0}
-.d-status-wrap{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
-.d-status{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:4px 10px;border-radius:var(--r-xl);
-  font-size:12px;font-weight:600;font-family:var(--mono);
-  letter-spacing:0.02em;white-space:nowrap;flex-shrink:0;
-}
-.d-status svg{width:13px;height:13px;flex-shrink:0}
-.d-status.st-done{background:var(--cat-design-bg);color:var(--cat-design)}
-.d-status.st-review{background:var(--cat-gloss-bg);color:var(--cat-gloss)}
-.d-status.st-draft{background:var(--a-w06);color:var(--n-400);border:1px solid var(--div-1)}
-/* 배지 설명 인포 아이콘 (ⓘ) + 툴팁 */
-.d-info{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:17px;height:17px;border-radius:50%;
-  border:1px solid var(--n-500);color:var(--n-300);
-  font-size:11px;font-style:italic;font-weight:700;font-family:var(--mono);
-  cursor:help;flex-shrink:0;transition:color 0.12s,border-color 0.12s;
-}
-.d-info:hover,.d-info:focus-visible{color:var(--text-1);border-color:var(--n-300);outline:none}
-#d-info-wrap{position:relative;display:inline-flex;align-items:center}
-.d-tip{
-  position:absolute;top:calc(100% + 10px);left:-6px;z-index:50;
-  width:max-content;max-width:360px;padding:14px 38px 14px 16px;
-  background:var(--n-900);border:1px solid var(--div-2);
-  border-radius:10px;
-  font-size:14px;line-height:1.6;color:var(--text-2);
-  box-shadow:0 8px 24px rgba(0,0,0,0.55);
-  white-space:normal;
-}
-/* 위쪽 꼬리 (아이콘을 가리킴) */
-.d-tip::before{
-  content:"";position:absolute;top:-6px;left:13px;
-  width:10px;height:10px;background:var(--n-900);
-  border-left:1px solid var(--div-2);border-top:1px solid var(--div-2);
-  transform:rotate(45deg);
-}
-.d-tip-close{
-  position:absolute;top:7px;right:7px;
-  display:inline-flex;align-items:center;justify-content:center;
-  width:22px;height:22px;border-radius:50%;
-  background:none;border:none;color:var(--n-400);cursor:pointer;
-  transition:background 0.12s,color 0.12s;
-}
-.d-tip-close:hover{background:var(--a-w10);color:var(--text-1)}
-.d-tip .tip-title{display:inline-block;font-weight:600;color:var(--text-1);font-family:var(--mono);margin-bottom:3px}
-.d-tip .tip-note{display:block;margin-top:10px;color:var(--n-400);font-size:14px}
-.d-tip .tip-line{display:flex;gap:6px;color:var(--text-2)}
-.d-tip .tip-line + .tip-line{margin-top:8px}
-.d-tip .tip-b{color:var(--n-400);flex-shrink:0}
-@media(max-width:479px){.d-tip{max-width:calc(100vw - 56px)}}
 /* 작성자 · 확인 · 날짜 */
 #d-author{display:flex;align-items:center;flex-wrap:wrap;margin-bottom:0}
 #d-name{font-size:14px;font-weight:500;color:var(--text-2)}
@@ -1300,22 +1249,3 @@ body.is-home #report-btn{display:none}
 .rm-status:empty{display:none}
 .rm-status.ok{color:#3FE0BD}
 .rm-status.err{color:var(--cr-200)}
-/* 배지 안내 모달 */
-#badge-modal{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;padding:24px;}
-#badge-modal.show{display:flex}
-#badge-modal-box{position:relative;width:100%;max-width:480px;background:var(--n-800);border:1px solid var(--div-2);border-radius:16px;padding:28px 28px 24px;box-shadow:0 12px 48px rgba(0,0,0,0.6);}
-#badge-modal-close{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:none;border:none;color:var(--n-400);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.12s,color 0.12s;}
-#badge-modal-close:hover{background:var(--a-w10);color:var(--text-1)}
-.bm-title{font-size:20px;font-weight:600;color:var(--text-1);margin-bottom:18px}
-.bm-desc{font-size:13px;color:var(--text-2);margin-bottom:16px}
-.bm-list{display:flex;flex-direction:column;gap:18px;margin-bottom:20px}
-.bm-item{display:flex;flex-direction:column;gap:7px}
-.bm-badges{display:flex;gap:6px;flex-wrap:wrap}
-.bm-item .d-status{flex-shrink:0}
-.bm-txt{font-size:16px;color:var(--text-2);line-height:1.55}
-.bm-note{font-size:14px;color:var(--n-400);line-height:1.7;border-top:1px solid var(--div-1);padding-top:14px}
-/* 툴팁 내 '전체 보기' 링크 */
-.tip-more{display:block;width:fit-content;margin-top:10px;font-size:14px;color:#E7727F;cursor:pointer;text-decoration:none}
-.tip-more:hover{color:#F09AA3;text-decoration:underline}
-.tip-more + .tip-more{margin-top:6px}
-.tip-ext{color:var(--n-400);font-size:12px}

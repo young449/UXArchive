@@ -473,75 +473,6 @@ function _openDetail(id, prevPage, push){
   const fmtDate=dp.length===3?`${dp[0]}. ${parseInt(dp[1])}. ${parseInt(dp[2])}.`:d.date;
   document.getElementById("d-name").textContent=d.author;
   document.getElementById("d-date").textContent=fmtDate;
-  // 검수 상태 배지 (제목 옆) — 주체 중심: {담당팀} {단계} + ⓘ 툴팁
-  //   d.status: "작성" | "검토중" | "확인완료"  (기본 '작성')
-  //   d.statusTeam: "UX" | "PM" | "연구소" ...  (기본 'UX')
-  const stEl=document.getElementById("d-status");
-  const wrapEl=document.getElementById("d-info-wrap");
-  const infoEl=document.getElementById("d-status-info");
-  const tipEl=document.getElementById("d-tip");
-  const tipBody=document.getElementById("d-tip-body");
-  const stMap={"확인완료":"st-done","검토중":"st-review","작성":"st-draft"};
-  const stageOrder={"작성":0,"검토중":1,"확인완료":2};
-  const _stageOf=(s)=>/확인/.test(s)?"확인완료":(/검토중/.test(s)?"검토중":"작성");
-  // 상태 원본 문자열: 시트값 > data_*.js statusText(다중) > team+stage 기본값
-  // 콤마로 여러 개 지정 가능 (예: 'UX 확인, PM 확인') → 배지 여러 개 표시
-  const ovText=(window.STATUS_OVERRIDES||{})[d.id];
-  let rawStatus;
-  if(ovText){
-    rawStatus = ovText;
-  } else if(d.statusText){
-    rawStatus = d.statusText;
-  } else {
-    const stage=d.status||"작성", team=d.statusTeam||"UX";
-    rawStatus = team + " " + ((stage==="확인완료")?"확인":stage);
-  }
-  const segs=rawStatus.split(/\s*,\s*/).filter(Boolean);
-  const chkSvg='<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7.5l2.5 2.5L11 4"/></svg>';
-  let stageKey="확인완료";   // 툴팁 설명용: 여러 개면 가장 덜 완료된 단계 기준
-  stEl.className="d-status-wrap";
-  stEl.innerHTML=segs.map(seg=>{
-    const key=_stageOf(seg);
-    if(stageOrder[key]<stageOrder[stageKey]) stageKey=key;
-    const cls=stMap[key]||"st-draft";
-    const chk=(key==="확인완료")?chkSvg:"";
-    return `<span class="d-status ${cls}">${chk}${seg}</span>`;
-  }).join("");
-  stEl.style.display="";
-  // ⓘ 툴팁 — 아이콘 바로 아래 팝오버 (배지 뜻만 설명 · 팝업과 문구 동일)
-  const stageDesc={
-    "작성":"작성만 되고 아직 검수를 시작하지 않은 상태입니다.",
-    "검토중":"담당 부서가 내용을 확인하는 중입니다.",
-    "확인완료":"담당 부서가 정확성을 확인 완료한 상태입니다."
-  }[stageKey]||"";
-  tipBody.innerHTML=`<div class="tip-line"><span class="tip-b">*</span><span>${stageDesc}</span></div>`+
-    `<div class="tip-line"><span class="tip-b">*</span><span>팀 표기는 이 항목의 담당일 뿐, UX→PM 같은 고정 순서가 아닙니다.</span></div>`+
-    `<a class="tip-more" id="tip-more" role="button" tabindex="0">→ 배지 종류 전체 보기</a>`+
-    `<a class="tip-more tip-sheet" id="tip-sheet" href="https://docs.google.com/spreadsheets/d/1R7KvLTtX3PIViM10hCu0tiqol1krZOrOx-D7xZMmMUo/edit" target="_blank" rel="noopener">→ 상태 수정하기 <span class="tip-ext">(구글 시트)</span></a>`;
-  wrapEl.style.display="";
-  const _setTip=(o)=>{tipEl.style.display=o?"block":"none";infoEl.setAttribute("aria-expanded",o?"true":"false");};
-  _setTip(false);
-  infoEl.onclick=()=>_setTip(tipEl.style.display!=="block");
-  infoEl.onkeydown=(e)=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();_setTip(tipEl.style.display!=="block");}};
-  document.getElementById("d-tip-close").onclick=()=>_setTip(false);
-  const moreEl=document.getElementById("tip-more");
-  if(moreEl){
-    const _openGuide=()=>{_setTip(false);openBadgeModal();};
-    moreEl.onclick=_openGuide;
-    moreEl.onkeydown=(e)=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();_openGuide();}};
-  }
-  // 바깥(아이콘·툴팁 영역 밖) 클릭 시 닫기 — 문서에 1회만 등록
-  if(!window._akTipOutside){
-    window._akTipOutside=true;
-    document.addEventListener("click",(e)=>{
-      const w=document.getElementById("d-info-wrap");
-      const t=document.getElementById("d-tip");
-      const ic=document.getElementById("d-status-info");
-      if(t && w && t.style.display==="block" && !w.contains(e.target)){
-        t.style.display="none"; if(ic) ic.setAttribute("aria-expanded","false");
-      }
-    });
-  }
   // 확인 세그먼트 (작성자 · 확인 · 날짜) — d.verifiedBy: ["기획파트", ...]
   const vEl=document.getElementById("d-verify");
   const vSep=document.getElementById("d-sep-v");
@@ -1223,10 +1154,6 @@ function closeImgModal(){
   document.body.style.overflow="";
 }
 
-// 배지 안내 모달
-function openBadgeModal(){ document.getElementById("badge-modal").classList.add("show"); document.body.style.overflow="hidden"; }
-function closeBadgeModal(){ document.getElementById("badge-modal").classList.remove("show"); document.body.style.overflow=""; }
-
 // 오류 신고 폼 모달 (제출 → Web3Forms → young@meewang.kr 메일 수신)
 // ▼▼▼ web3forms.com 에서 young@meewang.kr 로 발급받은 Access Key를 아래 따옴표 안에 붙여넣으세요 ▼▼▼
 const REPORT_ACCESS_KEY = "6e75f25d-0509-49f8-9939-46805ef153d5";
@@ -1288,56 +1215,11 @@ async function _sendReport(){
   const sb=document.getElementById("report-send"); if(sb) sb.addEventListener("click",_sendReport);
 })();
 
-// ===== 배지 상태를 구글 시트에서 불러오기 (코드 수정 없이 시트만 고치면 반영) =====
-// GNB별 시트(제품 / UX 히스토리 / AK 용어)를 각각 'CSV로 웹에 게시'한 주소를 넣으세요.
-// 시트 열 이름으로 읽습니다: id / 단계 / 담당팀 (그 외 열은 무시)
-const STATUS_SHEET_CSV_BASE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT8rJLj2cGMgEJbZRj1dn-0yZAuoFqn_7YCTA6-57EpQzOk8ZrnSWY0Q64TcKBk6OhXxELtslOLpE2h/pub";
-const STATUS_SHEET_CSV_URLS = [
-  STATUS_SHEET_CSV_BASE + "?gid=0&single=true&output=csv",          // 제품
-  STATUS_SHEET_CSV_BASE + "?gid=910290463&single=true&output=csv",  // UX 히스토리
-  STATUS_SHEET_CSV_BASE + "?gid=357135067&single=true&output=csv"   // AK 용어
-];
-window.STATUS_OVERRIDES = {};
-function _parseStatusCsv(text){
-  const lines = (text||"").trim().split(/\r?\n/);
-  if(lines.length < 2) return {};
-  const headers = lines[0].split(",").map(h=>h.trim().replace(/^﻿/,"").replace(/^"|"$/g,""));
-  const iId=headers.indexOf("id"), iStatus=headers.indexOf("상태");
-  if(iId<0 || iStatus<0) return {};         // id·상태 열 없으면 무시
-  const m={};
-  for(let r=1;r<lines.length;r++){
-    const cols = lines[r].split(",").map(c=>c.trim().replace(/^"|"$/g,""));
-    const id = parseInt(cols[iId],10);
-    if(isNaN(id)) continue;                 // 빈 줄 건너뜀
-    const status = (cols[iStatus]||"").trim();
-    if(status) m[id]=status;                // '상태' 문자열 그대로 (예: 'UX 확인')
-  }
-  return m;
-}
-async function loadStatusSheet(){
-  const urls = STATUS_SHEET_CSV_URLS.filter(u=>u && u.indexOf("http")===0);
-  if(!urls.length) return;
-  try{
-    const texts = await Promise.all(urls.map(u=>fetch(u).then(r=>r.ok?r.text():"").catch(()=>"")));
-    const merged = {};
-    texts.forEach(t=>Object.assign(merged, _parseStatusCsv(t)));   // 3개 시트 병합
-    if(Object.keys(merged).length){
-      window.STATUS_OVERRIDES = merged;
-      if(typeof S!=="undefined" && S.openId!=null && document.getElementById("detail").classList.contains("show")){
-        _openDetail(S.openId, undefined, false);
-      }
-    }
-  }catch(e){ /* 실패 시 조용히 JS 기본값 유지 */ }
-}
-loadStatusSheet();
-
 // ESC
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"){
     const _rm=document.getElementById("report-modal");
     if(_rm && _rm.classList.contains("show")){closeReportModal();return;}
-    const _bm=document.getElementById("badge-modal");
-    if(_bm && _bm.classList.contains("show")){closeBadgeModal();return;}
     if(document.getElementById("img-modal").classList.contains("show")){closeImgModal();return;}
     if(S.openId!==null) document.getElementById("detail-back").click();
     else if(document.body.classList.contains("is-tag")) document.getElementById("tag-back").click();

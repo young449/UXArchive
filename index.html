@@ -228,7 +228,7 @@
         목록으로
       </button>
       <div id="d-models"></div>
-      <div id="d-title-row"><h1 id="d-title"></h1><span id="d-status" class="d-status" style="display:none"></span><span id="d-info-wrap" style="display:none"><span id="d-status-info" class="d-info" tabindex="0" role="button" aria-label="배지 설명" aria-expanded="false">i</span><span id="d-tip" class="d-tip" role="dialog" style="display:none"><button id="d-tip-close" class="d-tip-close" type="button" aria-label="닫기"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 1l8 8M9 1L1 9"/></svg></button><div id="d-tip-body"></div></span></span></div>
+      <div id="d-title-row"><h1 id="d-title"></h1></div>
       <div id="d-author"><span id="d-name"></span><span class="d-author-sep" id="d-sep-v">·</span><span id="d-verify"></span><span class="d-author-sep">·</span><span id="d-date"></span></div>
       <hr class="dv"/>
       <div id="d-credits"></div>
@@ -291,22 +291,6 @@
     <circle cx="15.5" cy="11.5" r="0.9" fill="currentColor" stroke="none"/>
   </svg>
 </button>
-
-<!-- 배지 안내 모달 -->
-<div id="badge-modal" onclick="closeBadgeModal()">
-  <div id="badge-modal-box" onclick="event.stopPropagation()">
-    <button id="badge-modal-close" onclick="closeBadgeModal()" aria-label="닫기">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 1l10 10M11 1L1 11"/></svg>
-    </button>
-    <div class="bm-title">배지 안내</div>
-    <div class="bm-list">
-      <div class="bm-item"><div class="bm-badges"><span class="d-status st-draft">UX 작성</span></div><span class="bm-txt">작성만 되고 아직 검수를 시작하지 않은 상태입니다.</span></div>
-      <div class="bm-item"><div class="bm-badges"><span class="d-status st-review">PM 검토중</span></div><span class="bm-txt">담당 부서가 내용을 확인하는 중입니다.</span></div>
-      <div class="bm-item"><div class="bm-badges"><span class="d-status st-done">✓ UX 확인</span><span class="d-status st-done">✓ PM 확인</span></div><span class="bm-txt">담당 부서가 정확성을 확인 완료한 상태입니다.</span></div>
-    </div>
-    <div class="bm-note">※ 색은 단계 기준입니다. 회색=작성, 노랑=검토중, 초록=확인.<br>앞의 팀 이름은 이 항목의 담당일 뿐, UX→PM 같은 고정 순서가 아닙니다.</div>
-  </div>
-</div>
 
 <!-- 오류 신고 폼 모달 -->
 <div id="report-modal" onclick="closeReportModal()">
