@@ -1,6 +1,6 @@
 {
-  "name": "AK Archive",
-  "short_name": "AK Archive",
+  "name": "UX Archive",
+  "short_name": "UX Archive",
   "icons": [
     { "src": "images/logo/favicon-48.png", "sizes": "48x48", "type": "image/png" },
     { "src": "images/logo/bookmark-ios-180.png", "sizes": "180x180", "type": "image/png" }
