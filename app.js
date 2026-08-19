@@ -581,6 +581,9 @@ function _openDetail(id, prevPage, push){
     }).join("")
     :"";
   document.getElementById("d-links-wrap").style.display=links.length?"":"none";
+  // 태그 위 구분선: 첨부 파일·참고 링크가 하나도 없으면 숨김 (선만 뜨는 문제)
+  const _chipsWrap=document.getElementById("d-chips-wrap");
+  if(_chipsWrap) _chipsWrap.classList.toggle("is-only", !((d.files&&d.files.length)||links.length));
   // 변경 이력 — 최하단 접이식. d.history: [{date, text, by?}] (최신순 권장)
   const histEl=document.getElementById("d-history");
   let hist=d.history||[];

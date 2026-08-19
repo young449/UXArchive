@@ -778,6 +778,7 @@ hr.dv{border:none;border-top:1px solid var(--div-1);margin:20px 0}
 /* 태그 — 묶음 안에서 얇은 선으로 한 번 더 구분 */
 #d-chips-wrap:has(#d-chips:empty){display:none}
 #d-chips-wrap{border-top:1px solid rgba(255,255,255,0.06);padding-top:14px}
+#d-chips-wrap.is-only{border-top:none;padding-top:0}
 #d-chips{display:flex;gap:0;flex-wrap:wrap}
 .tag{
   display:inline-flex;align-items:center;
