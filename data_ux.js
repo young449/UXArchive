@@ -524,7 +524,7 @@ PD20 문구에는 '기기 측면의 Hold 스위치'라고 위치가 명시돼 �
      {src:"images/history/Lock_pd5_quick.png",caption:"Lock_pd5_quick.png"}
    ],
    links:[{label:"Figma_UX",url:"https://www.figma.com/design/pat4EALAOO9XW7Hynp30Md/UX_Crimson_F_U?node-id=9368-9568&t=nQHmOPn112ZLgran-1"}]},
-  {id:210,title:"설정 - 배터리 보호 모드 상한값 선택",credits:{PM:"Jay",UX:"Ellie"},category:"기능 히스토리",labels:["RC"],models:["SP4000T"],date:"2026.08.19",author:"Ellie",authorInitial:"E",
+  {id:210,title:"설정 - 배터리 보호 모드 상한값 선택",credits:{PM:"Jay, Luke",UX:"Ellie"},category:"기능 히스토리",labels:["RC"],models:["SP4000T"],date:"2026.04.29",author:"Ellie",authorInitial:"E",
    desc:"기존 85% 단일 고정이던 배터리 보호 모드 충전 상한값을 80/85/90/95% 4단계 중 사용자가 직접 선택하도록 변경. SP4000T부터 적용.",
    body:`■■ 결론
 
@@ -539,26 +539,6 @@ PD20 문구에는 '기기 측면의 Hold 스위치'라고 위치가 명시돼 �
 | 상한값 | 85% 단일 고정 | 80 / 85 / 90 / 95% |
 | 선택 주체 | 시스템 고정 | 사용자 선택 |
 | 적용 시점 | — | SP4000T부터 |
-
-
-■■ 왜 바뀌었나
-
-확인 필요. 아래 두 가지가 아직 안 채워져 있습니다.
-
-- 기존 상한값이 왜 85%였는지 (셀 보호 정책인지, 특정 근거값인지)
-- 4단계로 넓힌 배경이 사용자 요구인지, 배터리 스펙 변경에 따른 것인지
-
-→ Jay(PM)에게 확인 후 채울 것.
-
-
-■■ 버린 안
-
-확인 필요. (단계 수를 4개로 정한 이유, 100% 옵션을 두지 않은 이유 포함)
-
-
-■■ 출처
-
-SP4000T 사업계획서 — 신기능 '배터리 보호 모드' 항목. 세부 배경은 미확인.
 
 
 ■■ 적용 현황 및 RC 계획
