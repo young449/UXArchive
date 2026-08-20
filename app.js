@@ -411,20 +411,22 @@ function renderCards(){
     el.className="card";el.setAttribute("role","listitem");el.setAttribute("tabindex","0");el.setAttribute("data-id",d.id);
     // 상단: 탭명 배지(labels) + 반영모델 배지(models)
     const labelBadges = d.labels
-      ? d.labels.map(l=>`<span class="badge ${LABEL_CLS[l]||'b-more'}">${l}</span>`).join("")
+      ? d.labels.map(l=>`<span class="badge is-type ${LABEL_CLS[l]||'b-more'}">${l}</span>`).join("")
       : "";
-    const glossBadge = d.glossTab ? `<span class="badge b-gloss">${d.glossTab}</span>` : "";  // AK 용어 분류 칩
+    const glossBadge = d.glossTab ? `<span class="badge is-type b-gloss">${d.glossTab}</span>` : "";  // AK 용어 분류 칩
     const vis=d.models.slice(0,MAX_MODELS);
     const hid=d.models.length-vis.length;
     const divider=(labelBadges&&vis.length>0)?`<span class="badge-divider"></span>`:"";
     const modelBadges=labelBadges+divider+vis.map(m=>`<span class="badge ${DAP_CLS[m]||'b-more'}">${m}</span>`).join("")
       +(hid>0?`<span class="badge b-more">+${hid}</span>`:"");
-    const catBadge=!S.cat?`<span class="badge ${CAT_CLS[d.category]||'b-more'}">${d.category}</span>`:'';
-    const stateBadge=d.state?`<span class="badge ${STATE_CLS[d.state]||'b-state-off'}">${d.state}</span>`:'';
-    // 배지 순서: 유형 → 적용 → 모델
-    const badges=catBadge+glossBadge+labelBadges+stateBadge
-      +vis.map(m=>`<span class="badge ${DAP_CLS[m]||'b-more'}">${m}</span>`).join("")
-      +(hid>0?`<span class="badge b-more">+${hid}</span>`:"");
+    const catBadge=!S.cat?`<span class="badge is-type ${CAT_CLS[d.category]||'b-more'}">${d.category}</span>`:'';
+    // 배지는 축마다 모양이 다르다: 유형=채움 / 적용=알약+점 / 모델=테두리
+    const badges=badgeGroups(
+      catBadge+glossBadge+labelBadges,
+      d.state?`<span class="badge is-state ${STATE_CLS[d.state]||'b-state-off'}">${d.state}</span>`:'',
+      vis.map(m=>`<span class="badge is-model ${DAP_CLS[m]||'b-more'}">${m}</span>`).join("")
+        +(hid>0?`<span class="badge is-model b-more">+${hid}</span>`:"")
+    );
     const dp=d.date.split(".");
     const fmtDate=dp.length===3?`${dp[0]}. ${parseInt(dp[1])}. ${parseInt(dp[2])}.`:d.date;
     // 제목 → 배지 → 작성자·날짜 순
@@ -473,15 +475,12 @@ function _openDetail(id, prevPage, push){
   document.getElementById("gloss-subtab-wrap").classList.remove("show");
   document.getElementById("empty").classList.remove("show");
   // 모델 배지: 레이블 먼저 + 모델 (기능 히스토리는 A&ultima 제외, showAllModels 예외)
-  const detailLabels = d.labels
-    ? d.labels.map(l=>`<span class="badge ${LABEL_CLS[l]||""}">${l}</span>`).join("")
-    : "";
-  const detailState = d.state
-    ? `<span class="badge ${STATE_CLS[d.state]||"b-state-off"}">${d.state}</span>`
-    : "";
-  // 유형 → 적용 → 모델
-  document.getElementById("d-models").innerHTML=
-    detailLabels+detailState+d.models.map(m=>`<span class="badge ${DAP_CLS[m]||""}">${m}</span>`).join("");
+  // 유형 → 적용 → 모델. 축 사이에 구분선을 넣고 모양도 다르게 한다.
+  document.getElementById("d-models").innerHTML=badgeGroups(
+    (d.labels||[]).map(l=>`<span class="badge is-type ${LABEL_CLS[l]||""}">${l}</span>`).join(""),
+    d.state?`<span class="badge is-state ${STATE_CLS[d.state]||"b-state-off"}">${d.state}</span>`:"",
+    (d.models||[]).map(m=>`<span class="badge is-model ${DAP_CLS[m]||""}">${m}</span>`).join("")
+  );
   // 제목
   document.getElementById("d-title").textContent=d.title;
   // 날짜 포맷: 2026.05.18 → 2026. 5. 18.
@@ -656,6 +655,11 @@ function closeDetail(rerender=true){
   renderChipBar();
   renderCards();
   window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* 축 그룹 사이에만 구분선을 넣는다 (빈 그룹은 건너뜀) */
+function badgeGroups(){
+  return [...arguments].filter(Boolean).join('<span class="badge-divider"></span>');
 }
 
 function hl(text,q){

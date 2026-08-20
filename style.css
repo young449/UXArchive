@@ -645,7 +645,18 @@ body.is-list #list-page{display:flex}
 .b-state-plan{background:rgba(255,187,0,0.13);color:#FFC83D}
 .b-state-off{background:var(--a-w06);color:var(--n-400);border:1px solid var(--div-1)}
 .b-more{background:var(--a-w06);color:var(--n-400);border:1px solid var(--div-1)}
-.badge-divider{display:inline-block;width:1px;height:12px;background:var(--div-1);margin:0 2px;flex-shrink:0}
+.badge-divider{display:inline-block;width:1px;height:12px;background:var(--div-2);margin:0 5px;flex-shrink:0}
+/* ── 축별 배지 모양 — 색만으로는 구분이 안 되므로 형태를 다르게 ── */
+/* 유형: 채움 사각 (기본) */
+.badge.is-type{font-weight:600}
+/* 적용: 알약 + 앞 점 */
+.badge.is-state{border-radius:var(--r-xl);padding:3px 10px 3px 8px}
+.badge.is-state::before{
+  content:"";width:5px;height:5px;border-radius:50%;
+  background:currentColor;margin-right:5px;flex-shrink:0;
+}
+/* 모델: 테두리형 (배경 없음) */
+.badge.is-model{background:transparent;border:1px solid currentColor}
 .tag{display:inline-flex;align-items:center;padding:3px 8px;border-radius:var(--r-xs);font-size:12px;color:var(--n-400);background:var(--a-w06);border:1px solid var(--div-1)}
 mark{background:transparent;color:var(--cr-200);border-radius:0;padding:0;font-weight:600;}
 
