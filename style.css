@@ -382,27 +382,23 @@ body.is-list #list-page{display:flex}
     z-index:1;
   }
 }
+/* 필터 칩 — 목록 메타 라인과 톤을 맞춘 플랫 스타일 */
 .chip-btn{
   display:inline-flex;align-items:center;gap:5px;
-  padding:8px 16px;border-radius:var(--r-xl);
-  font-size:15px;font-weight:500;
-  color:var(--text-2);background:var(--n-800);
+  height:32px;padding:0 12px;border-radius:8px;
+  font-size:13px;font-weight:500;
+  color:var(--text-2);background:transparent;
   border:1px solid var(--div-2);
-  transition:all 0.13s;white-space:nowrap;
-  flex-shrink:0;
+  transition:color 0.13s,background 0.13s,border-color 0.13s;
+  white-space:nowrap;flex-shrink:0;
 }
-.chip-btn:hover{color:var(--text-1);background:var(--n-700);border-color:var(--n-500)}
-.chip-btn.is-active{color:#fff;background:var(--cr-700);border-color:var(--cr-700)}
-.chip-btn.is-active[data-chip="A&ultima"]{background:var(--chip-ultima-bg);border-color:var(--chip-ultima);color:var(--chip-ultima)}
-.chip-btn.is-active[data-chip="PD series"]{background:var(--chip-pd-bg);border-color:var(--chip-pd);color:var(--chip-pd)}
-.chip-btn.is-active[data-chip="RC"]{background:var(--chip-rc-bg);border-color:var(--chip-rc);color:var(--chip-rc)}
-.chip-btn.is-active[data-chip="Research"]{background:var(--chip-research-bg);border-color:var(--chip-research);color:var(--chip-research)}
-.chip-btn.is-active[data-chip="Others"]{background:var(--chip-others-bg);border-color:var(--chip-others);color:var(--chip-others)}
-.chip-btn.is-active[data-chip="Heritage"]{background:var(--chip-her-bg);border-color:var(--chip-her);color:var(--chip-her)}
-.chip-btn.is-active[data-chip="Classic"]{background:var(--chip-cl-bg);border-color:var(--chip-cl);color:var(--chip-cl)}
-.chip-btn.is-active[data-chip="SP4000"]{background:var(--chip-sp4000t-bg);border-color:var(--chip-sp4000t);color:var(--chip-sp4000t)}
-.chip-btn.is-active[data-chip="SP4000T"]{background:var(--chip-sp4000t-bg);border-color:var(--chip-sp4000t);color:var(--chip-sp4000t)}
-.chip-btn .cnt{font-size:12px;font-family:var(--mono);opacity:0.7}
+.chip-btn:hover{color:var(--text-1);background:var(--a-w06);border-color:var(--n-500)}
+.chip-btn.is-active{
+  color:var(--cr-200);
+  background:rgba(204,27,56,0.14);
+  border-color:rgba(204,27,56,0.45);
+}
+.chip-btn .cnt{font-size:11px;font-family:var(--mono);opacity:0.55}
 .gloss-stab .cnt{font-size:12px;font-family:var(--mono);opacity:0.7}
 #chip-search-wrap{position:relative;flex-shrink:0}
 /* 검색 필드 상태 가이드
@@ -410,20 +406,20 @@ body.is-list #list-page{display:flex}
    Active  : bg n-700 / border n-400       / placeholder n-500 / icon n-400
 */
 #chip-search{
-  width:170px;height:36px;padding:0 12px 0 32px;
-  background:var(--n-800);border:1px solid var(--div-2);
-  border-radius:var(--r-xl);color:var(--text-1);
-  font-family:var(--font);font-size:14px;outline:none;
+  width:180px;height:32px;padding:0 12px 0 30px;
+  background:transparent;border:1px solid var(--div-2);
+  border-radius:8px;color:var(--text-1);
+  font-family:var(--font);font-size:13px;outline:none;
   transition:background 0.13s,border-color 0.13s,width 0.2s;
 }
 #chip-search::placeholder{color:var(--n-500)}
 #chip-search:focus{
-  background:var(--n-700);
+  background:var(--a-w06);
   border-color:var(--n-400);
 }
 #chip-search:focus ~ .csi,
 #chip-search:focus + .csi{ color:var(--n-400); }
-.csi{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--n-500);pointer-events:none;transition:color 0.13s;}
+.csi{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--n-500);pointer-events:none;transition:color 0.13s;}
 #chip-search-icon{display:none}
 #chip-search-close{display:none}
 
@@ -449,10 +445,10 @@ body.is-list #list-page{display:flex}
   .csi{ display:none; }
   #chip-search-wrap{
     display:flex;align-items:center;justify-content:center;
-    width:34px;height:34px;flex-shrink:0;
-    background:var(--n-800);
+    width:32px;height:32px;flex-shrink:0;
+    background:transparent;
     border:1px solid var(--div-2);
-    border-radius:10px;
+    border-radius:8px;
     cursor:pointer;
   }
   #chip-search-icon{
@@ -465,8 +461,8 @@ body.is-list #list-page{display:flex}
   #chip-bar.search-open .chip-scroll{ display:none; }
   #chip-bar.search-open::after{ display:none; }
   #chip-bar.search-open #chip-search-wrap{
-    flex:1;width:auto;height:34px;
-    border-radius:var(--r-xl);
+    flex:1;width:auto;height:32px;
+    border-radius:8px;
     justify-content:flex-start;
     padding:0 12px 0 36px;
     position:relative;
@@ -1126,12 +1122,12 @@ body.is-tag #detail[style*="block"] {
   #chip-bar { margin-bottom: 28px }
   .chip-scroll { gap: 4px }
   .chip-row-label { width: 32px; font-size: 10px }
-  .chip-btn { padding: 8px 16px; font-size: 14px }
-  .gloss-stab { padding: 6px 12px; font-size: 13px }
+  .chip-btn { height: 30px; padding: 0 10px; font-size: 12px }
+  .gloss-stab { height: 30px; padding: 0 10px; font-size: 12px }
 
   /* 검색창 고정, 크기 유지 */
   #chip-search-wrap { flex-shrink: 0 }
-  #chip-search       { font-size: 13px }
+  #chip-search       { font-size: 12px }
 
   /* 카드 */
   .card { padding: 18px 16px; }
@@ -1228,17 +1224,17 @@ body.is-tag #detail[style*="block"] {
 #gloss-subtab-wrap.show{display:flex;align-items:center;}
 .gloss-stab{
   display:inline-flex;align-items:center;gap:5px;
-  padding:7px 14px;
-  border-radius:var(--r-xl);
-  font-size:14px;font-weight:500;
+  height:32px;padding:0 12px;
+  border-radius:8px;
+  font-size:13px;font-weight:500;
   color:var(--text-2);
-  background:var(--n-800);
+  background:transparent;
   border:1px solid var(--div-2);
-  transition:all 0.13s;white-space:nowrap;cursor:pointer;
+  transition:color 0.13s,background 0.13s,border-color 0.13s;white-space:nowrap;cursor:pointer;
   flex-shrink:0;
 }
-.gloss-stab:hover{color:var(--text-1);background:var(--n-700);border-color:var(--n-500)}
-.gloss-stab.is-active{color:#fff;background:var(--cr-700);border-color:var(--cr-700)}
+.gloss-stab:hover{color:var(--text-1);background:var(--a-w06);border-color:var(--n-500)}
+.gloss-stab.is-active{color:var(--cr-200);background:rgba(204,27,56,0.14);border-color:rgba(204,27,56,0.45)}
 #gloss-search{
   width:170px;height:36px;padding:0 12px 0 32px;
   background:var(--n-800);border:1px solid var(--div-2);
