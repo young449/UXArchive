@@ -539,6 +539,8 @@ body.is-list #list-page{display:flex}
   padding:0;font-size:12px;letter-spacing:0;border-radius:0;
 }
 .meta-line .badge+.badge{margin-left:6px}
+/* 유형은 단색 — 색은 '적용 상태'에만 쓴다 (한 줄에 컬러 하나) */
+.meta-line .badge.is-type{color:var(--text-1);font-weight:600}
 .meta-line .badge.is-model{color:var(--n-400);font-weight:400;opacity:1}
 .meta-line .badge.is-state::before{width:4px;height:4px;margin-right:4px}
 .meta-line .badge-divider{
