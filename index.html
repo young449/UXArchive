@@ -227,9 +227,9 @@
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8.5 2.5L4 7l4.5 4.5"/></svg>
         목록으로
       </button>
-      <div id="d-models"></div>
       <div id="d-title-row"><h1 id="d-title"></h1></div>
       <div id="d-author"><span id="d-name"></span><span class="d-author-sep" id="d-sep-v">·</span><span id="d-verify"></span><span class="d-author-sep">·</span><span id="d-date"></span></div>
+      <div id="d-models"></div>
       <hr class="dv"/>
       <div id="d-credits"></div>
       <div id="d-keyconcept"><div class="kc-label">Key Concept</div><div id="kc-body"></div></div>
@@ -312,13 +312,14 @@
 <script src="data_ux.js?v=20260721b"></script>
 <script src="data_glossary.js?v=20260721"></script>
 <script>
-const DAP_CLS = {"A&ultima":"b-ultima","PD series":"b-pd","Heritage":"b-her","Classic":"b-cl","SP3000":"b-sp3000","SP3000T":"b-sp3000","SP3000M":"b-sp3000","SP4000":"b-sp4000","SP4000T":"b-sp4000t","PD10":"b-pd","PD20":"b-pd","PD5":"b-pd","SP4000T 이후 전 모델":"b-sp4000t"};
-const LABEL_CLS = {"A&ultima":"b-ultima","PD series":"b-pd","RC":"b-rc","Research":"b-research","Others":"b-others","Heritage":"b-her","Classic":"b-cl"};
+const DAP_CLS = {"A&ultima":"b-ultima","PD series":"b-pd","Heritage":"b-her","Classic":"b-cl","SP3000":"b-sp3000","SP3000T":"b-sp3000","SP3000M":"b-sp3000","SP4000":"b-sp4000","SP4000T":"b-sp4000t","PD10":"b-pd","PD20":"b-pd","PD5":"b-pd","PD30":"b-pd","공통":"b-common"};
+/* 유형 축 배지 색 */
+const LABEL_CLS = {"결정":"b-decision","규칙":"b-rule","리서치":"b-research","A&ultima":"b-ultima","PD series":"b-pd","RC":"b-rc","Others":"b-others"};
 const CAT_CLS = {"제품 모델":"b-model","기능 히스토리":"b-hist","디자인 가이드":"b-design","용어사전":"b-gloss"};
 const HERO = {
   "전체":{title:"전체",desc:"프로젝트 히스토리, 의사결정 배경, 사내 용어를 키워드 하나로 즉시 탐색"},
   "제품 모델":{title:"제품",desc:"모델별 사양과 신기능을 확인하세요."},
-  "기능 히스토리":{title:"UX 히스토리",desc:"기능의 의사결정 배경과 변경 이력을 확인하세요."},
+  "기능 히스토리":{title:"UX 히스토리",desc:"유형과 모델로 좁혀서 찾으세요."},
   "디자인 가이드":{title:"디자인 가이드",desc:"컴포넌트 스펙, 컬러 토큰, 가이드라인 문서"},
   "용어사전":{title:"AK 용어",desc:"DAP 시장과 AK 서비스의 주요 용어를 확인하세요."},
 };

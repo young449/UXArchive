@@ -1,4 +1,4 @@
-const S = {cat:"",chip:"전체",q:"",openId:null,tag:"",glossTab:"전체"};
+const S = {cat:"",chip:"전체",model:"전체",q:"",openId:null,tag:"",glossTab:"전체"};
 // 초기 히스토리 상태 설정 (뒤로가기 기준점)
 history.replaceState({page:"home"}, "");
 
@@ -143,7 +143,7 @@ function _goHome(push) {
   document.getElementById("home-search").value = "";
   document.getElementById("home-clear").classList.remove("show");
   document.querySelectorAll(".gnb-tab").forEach(t=>t.classList.remove("is-active"));
-  S.cat="";S.chip="전체";S.q="";S.openId=null;
+  S.cat="";S.chip="전체";S.model="전체";S.q="";S.openId=null;
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
@@ -152,7 +152,7 @@ function _goList(cat, q, push) {
   gaPage(cat ? '/list/' + catToSlug(cat) : '/search', 'AK Archive – ' + (cat || '검색'));
   if (push) pushHistory({page:"list", cat, q:q||""});
   document.body.className = "is-list";
-  S.prevCat=S.cat; S.cat=cat; S.chip="전체"; S.q=q||""; S.openId=null;
+  S.prevCat=S.cat; S.cat=cat; S.chip="전체"; S.model="전체"; S.q=q||""; S.openId=null;
   if(cat !== "용어사전") S.glossTab = "전체";
   // 항상 list UI 복구 (태그 페이지에서 올 때도 포함)
   ["card-list","count-row","hero"].forEach(i=>{
@@ -186,116 +186,114 @@ function _goList(cat, q, push) {
 /* =============================================
    SECTION: js-chip-bar
 ============================================= */
-function getChips(cat) {
-  if(cat==="제품 모델") return [
-    {key:"전체",label:"전체"},
-    {key:"A&ultima",label:"A&ultima"},
-    {key:"PD series",label:"PD series"},
-    {key:"Heritage",label:"Heritage"},
-    {key:"Classic",label:"Classic"}
-  ];
-  if(cat==="기능 히스토리") return [
-    {key:"전체",label:"전체"},
-    {key:"A&ultima",label:"A&ultima"},
-    {key:"PD series",label:"PD series"},
-    {key:"RC",label:"RC"},
-    {key:"Research",label:"Research"},
-    {key:"Others",label:"Others"}
-  ];
-  if(cat==="용어사전") return [
-    {key:"전체",label:"전체"},
-    {key:"HW",label:"HW"},
-    {key:"SW",label:"SW"},
-    {key:"Local",label:"Local"},
-    {key:"Service",label:"Service"},
-    {key:"Feature",label:"Feature"},
-    {key:"Dev",label:"Dev"}
-  ];
+/* 유형 축 — 글의 성격. 값이 시간에 따라 변하지 않는다. */
+function getTypeChips(cat){
+  if(cat==="기능 히스토리") return ["전체","결정","규칙","리서치"];
+  if(cat==="용어사전")     return ["전체","HW","SW","Local","Service","Feature","Dev"];
   return [];
+}
+/* 모델 축 — 데이터에서 자동 수집. 모델이 늘어도 코드를 고칠 필요가 없다. */
+function getModelChips(cat){
+  if(cat!=="기능 히스토리") return [];
+  const set=new Set();
+  DATA.filter(d=>d.category===cat).forEach(d=>(d.models||[]).forEach(m=>set.add(m)));
+  const rest=[...set].filter(m=>m!=="공통").sort((x,y)=>x.localeCompare(y,["en","ko"],{numeric:true}));
+  return ["전체",...(set.has("공통")?["공통"]:[]),...rest];
 }
 
 function renderChipBar() {
   const bar=document.getElementById("chip-bar");
   const wasSearchOpen=bar.classList.contains("search-open");
-  bar.innerHTML="";
-  bar.style.cssText="";
-  const chips=getChips(S.cat);
+  bar.innerHTML=""; bar.style.cssText="";
 
-  // 탭 스크롤 영역
-  const scroll=document.createElement("div");
-  scroll.id="chip-scroll";
-  chips.forEach(c=>{
-    let cnt;
+  // 카운트는 '다른 축의 현재 선택'을 반영한다 (0건 막다른 칩이 안 생기도록)
+  const countFor=(axis,key)=>{
     if(S.cat==="용어사전"){
-      cnt = c.key==="전체" ? DATA_glossary.length : DATA_glossary.filter(d=>d.glossTab===c.key).length;
-    } else {
-      cnt=DATA.filter(d=>d.category===S.cat&&(c.key==="전체"||d.models.includes(c.key)||(d.labels&&d.labels.includes(c.key)))).length;
+      return key==="전체" ? DATA_glossary.length
+                          : DATA_glossary.filter(d=>d.glossTab===key).length;
     }
-    const btn=document.createElement("button");
-    btn.className="chip-btn"+(S.chip===c.key?" is-active":"");
-    btn.dataset.chip=c.key;
-    btn.innerHTML=`${c.label} <span class="cnt">${cnt}</span>`;
-    btn.addEventListener("click",()=>{
-      S.chip=c.key;
-      if(S.cat==="용어사전") S.glossTab=c.key;
-      if(typeof gtag!=="undefined"){
-        gtag("event","select_filter",{filter_name:c.key,category:S.cat});
+    return DATA.filter(d=>{
+      if(d.category!==S.cat) return false;
+      if(axis==="type"){
+        if(S.model!=="전체" && !(d.models||[]).includes(S.model)) return false;
+        return key==="전체" || (d.labels||[]).includes(key);
       }
-      updateChips();renderCards();
-    });
-    scroll.appendChild(btn);
-  });
-  bar.appendChild(scroll);
+      if(S.chip!=="전체" && !(d.labels||[]).includes(S.chip)) return false;
+      return key==="전체" || (d.models||[]).includes(key);
+    }).length;
+  };
 
-  // 검색 버튼 — 우측 고정
+  const makeRow=(axis,label,keys)=>{
+    const row=document.createElement("div");
+    row.className="chip-row chip-row-"+axis;
+    if(label){
+      const l=document.createElement("span");
+      l.className="chip-row-label"; l.textContent=label;
+      row.appendChild(l);
+    }
+    const scroll=document.createElement("div");
+    scroll.className="chip-scroll";
+    if(axis==="type") scroll.id="chip-scroll";
+    keys.forEach(k=>{
+      const active=(axis==="type"?S.chip:S.model)===k;
+      const btn=document.createElement("button");
+      btn.className="chip-btn"+(active?" is-active":"");
+      btn.dataset.chip=k; btn.dataset.axis=axis;
+      btn.innerHTML=`${k} <span class="cnt">${countFor(axis,k)}</span>`;
+      btn.addEventListener("click",()=>{
+        if(axis==="type"){ S.chip=k; if(S.cat==="용어사전") S.glossTab=k; }
+        else S.model=k;
+        if(typeof gtag!=="undefined") gtag("event","select_filter",{filter_name:k,category:S.cat});
+        renderChipBar(); renderCards();
+      });
+      scroll.appendChild(btn);
+    });
+    row.appendChild(scroll);
+    return row;
+  };
+
+  const typeKeys=getTypeChips(S.cat);
+  const modelKeys=getModelChips(S.cat);
+  const twoAxis=modelKeys.length>1;
+  const row1=makeRow("type", twoAxis?"유형":"", typeKeys);
+  bar.appendChild(row1);
+
+  // 검색 — 1행 우측 고정
   const sw=document.createElement("div");
   sw.id="chip-search-wrap";
-  sw.style.cssText="position:relative;flex-shrink:0;";
   sw.innerHTML=`<svg class="csi" width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4"/><path d="M9 9l3 3"/></svg><input id="chip-search" type="search" placeholder="페이지 내 검색" autocomplete="off"/><span id="chip-search-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5l3 3"/></svg></span>`;
-
-  // 원형 X — 필드 안에 위치
   const clearBtn=document.createElement("button");
   clearBtn.id="chip-search-clear";
   clearBtn.innerHTML=`<svg width="12" height="12" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l10 10M14 4L4 14"/></svg>`;
   sw.appendChild(clearBtn);
-  bar.appendChild(sw);
-
-  // 그냥 X — 필드 밖 우측 (탭으로 돌아가기)
+  row1.appendChild(sw);
   const closeBtn=document.createElement("button");
   closeBtn.id="chip-search-close";
   closeBtn.innerHTML=`<svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l10 10M14 4L4 14"/></svg>`;
-  bar.appendChild(closeBtn);
+  row1.appendChild(closeBtn);
 
-  // 아이콘 클릭 → 검색 확장
+  if(twoAxis) bar.appendChild(makeRow("model","모델",modelKeys));
+
   sw.addEventListener("click", ()=>{
     if(bar.classList.contains("search-open")) return;
     bar.classList.add("search-open");
-    const inp=document.getElementById("chip-search");
-    if(inp){ inp.focus(); }
+    const inp=document.getElementById("chip-search"); if(inp) inp.focus();
   });
-  // 원형 X — 텍스트만 지우기
-  clearBtn.addEventListener("click", (e)=>{
-    e.stopPropagation();
-    S.q="";
+  clearBtn.addEventListener("click",(e)=>{
+    e.stopPropagation(); S.q="";
     const inp=document.getElementById("chip-search");
     if(inp){ inp.value=""; inp.focus(); }
-    clearBtn.classList.remove("show");
-    renderCards();
+    clearBtn.classList.remove("show"); renderCards();
   });
-  // 밖 X — 검색 닫고 탭으로 복귀
-  closeBtn.addEventListener("click", (e)=>{
-    e.stopPropagation();
-    bar.classList.remove("search-open");
-    S.q="";
-    const inp=document.getElementById("chip-search");
-    if(inp) inp.value="";
+  closeBtn.addEventListener("click",(e)=>{
+    e.stopPropagation(); bar.classList.remove("search-open"); S.q="";
+    const inp=document.getElementById("chip-search"); if(inp) inp.value="";
     renderCards();
   });
 
   const inp=document.getElementById("chip-search");
   if(inp){inp.value=S.q||"";clearBtn.classList.toggle("show",!!inp.value);inp.addEventListener("input",()=>{S.q=inp.value;clearBtn.classList.toggle("show",!!inp.value);renderCards();if(S.q.length>=1&&typeof gtag!=="undefined"){gtag("event","search",{search_term:S.q,search_location:"category_"+S.cat});}});}
 
-  // 재렌더링 후 검색 열린 상태 복원
   if(wasSearchOpen){
     bar.classList.add("search-open");
     if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
@@ -303,7 +301,10 @@ function renderChipBar() {
 }
 
 function updateChips(){
-  document.querySelectorAll(".chip-btn").forEach(b=>b.classList.toggle("is-active",b.dataset.chip===S.chip));
+  document.querySelectorAll(".chip-btn").forEach(b=>{
+    const sel = b.dataset.axis==="model" ? S.model : S.chip;
+    b.classList.toggle("is-active", b.dataset.chip===sel);
+  });
 }
 
 /* =============================================
@@ -314,10 +315,9 @@ function filterData(){
   return DATA.filter(d=>{
     if(S.cat&&d.category!==S.cat)return false;
     if(S.cat==="용어사전" && S.chip!=="전체" && d.glossTab!==S.chip) return false;
-    if(S.chip!=="전체"&&(S.cat==="제품 모델"||S.cat==="기능 히스토리")){
-      const inModels = d.models.includes(S.chip);
-      const inLabels = d.labels && d.labels.includes(S.chip);
-      if(!inModels && !inLabels) return false;
+    if(S.cat==="기능 히스토리"){
+      if(S.chip!=="전체"  && !(d.labels||[]).includes(S.chip))  return false;  // 유형 축
+      if(S.model!=="전체" && !(d.models||[]).includes(S.model)) return false;  // 모델 축
     }
     if(!q)return true;
     return d.title.toLowerCase().includes(q);
@@ -380,8 +380,8 @@ function renderCards(){
       el.innerHTML=`
         <div class="card-thumb-img">${imgHtml}</div>
         <div class="card-thumb-body">
-          <div class="card-thumb-label">${modelBadges}</div>
           <div class="card-thumb-title">${hl(d.title,q)}</div>
+          <div class="card-thumb-label">${modelBadges}</div>
           <div class="card-thumb-meta">
             <span class="card-thumb-meta-author">${d.author}</span>
             <span class="card-thumb-meta-sep">·</span>
@@ -412,15 +412,17 @@ function renderCards(){
     const modelBadges=labelBadges+divider+vis.map(m=>`<span class="badge ${DAP_CLS[m]||'b-more'}">${m}</span>`).join("")
       +(hid>0?`<span class="badge b-more">+${hid}</span>`:"");
     const hasBadge=(vis.length>0||labelBadges||glossBadge);
-    const topRow=(hasBadge||!S.cat)
-      ?`<div class="card-top"><div class="card-models-row">${!S.cat?`<span class="badge ${CAT_CLS[d.category]||'b-more'}">${d.category}</span>${hasBadge?'<span class="badge-divider"></span>':''}`:''}${glossBadge}${modelBadges}</div></div>`
+    const catBadge=!S.cat?`<span class="badge ${CAT_CLS[d.category]||'b-more'}">${d.category}</span>`:'';
+    const badgeRow=(hasBadge||catBadge)
+      ?`<div class="card-badges">${catBadge}${glossBadge}${modelBadges}</div>`
       :"";
     const dp=d.date.split(".");
     const fmtDate=dp.length===3?`${dp[0]}. ${parseInt(dp[1])}. ${parseInt(dp[2])}.`:d.date;
+    // 제목이 먼저 읽히도록 배지는 제목 아래 메타 라인으로 내린다
     el.innerHTML=`
-      ${topRow}
       <div class="card-title">${hl(d.title,q)}</div>
       <div class="card-meta">
+        ${badgeRow}
         <span class="card-meta-author">${d.author}</span>
         <span class="card-meta-sep">·</span>
         <span class="card-meta-date">${fmtDate}</span>
@@ -476,7 +478,11 @@ function _openDetail(id, prevPage, push){
   // 확인 세그먼트 (작성자 · 확인 · 날짜) — d.verifiedBy: ["기획파트", ...]
   const vEl=document.getElementById("d-verify");
   const vSep=document.getElementById("d-sep-v");
-  if(d.verifiedBy && d.verifiedBy.length){
+  if(d.state){
+    // 상태는 시간이 지나면 바뀌는 값 — 필터가 아니라 표시 전용
+    vEl.textContent=d.state;
+    vEl.style.display=""; if(vSep) vSep.style.display="";
+  } else if(d.verifiedBy && d.verifiedBy.length){
     vEl.textContent="확인 "+d.verifiedBy.join(", ");
     vEl.style.display=""; if(vSep) vSep.style.display="";
   } else {
@@ -1064,7 +1070,7 @@ function renderBody(text) {
 
 // GNB 탭
 document.querySelectorAll(".gnb-tab").forEach(tab=>{
-  tab.addEventListener("click",()=>{S.chip="전체";S.q="";if(typeof gtag!=="undefined"){gtag("event","select_category",{category_name:tab.dataset.cat});}goList(tab.dataset.cat,"");});
+  tab.addEventListener("click",()=>{S.chip="전체";S.model="전체";S.q="";if(typeof gtag!=="undefined"){gtag("event","select_category",{category_name:tab.dataset.cat});}goList(tab.dataset.cat,"");});
 });
 
 // ── 드로어 ──
@@ -1101,7 +1107,7 @@ document.querySelectorAll(".gnb-tab").forEach(tab=>{
 
   document.querySelectorAll(".gnb-drawer-item").forEach(item=>{
     item.addEventListener("click", ()=>{
-      S.chip="전체"; S.q="";
+      S.chip="전체"; S.model="전체"; S.q="";
       goList(item.dataset.cat, "");
       closeDrawer();
     });

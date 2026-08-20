@@ -1,11 +1,17 @@
 // =============================================
 // data_ux.js
-// UX 히스토리 / 디자인 가이드 카테고리 데이터
+// UX 히스토리 카테고리 데이터
 // 항목 추가 시 id는 고유한 숫자로 지정
+//
+// [분류 축 3개 — 섞지 말 것]
+//  labels : 유형   "결정" | "규칙" | "리서치"        ← 필터 축 1
+//  models : 모델   ["공통"] 또는 ["SP4000T", ...]     ← 필터 축 2
+//  state  : 상태   "적용됨" | "RC 예정" | "미정" | "" ← 표시만, 필터 아님
+//                  (시간이 지나면 값이 바뀌므로 필터로 쓰지 않는다)
 // =============================================
 
 const DATA_ux = [
-  {id:206,title:"Favorite에서 Collection으로(기능 확장 재정의)",credits:{UX:"Ellie"},category:"기능 히스토리",labels:["A&ultima"],models:["SP4000T 이후 전 모델"],date:"2026.05.18",author:"Ellie",authorInitial:"E",status:"확인완료",
+  {id:206,title:"Favorite에서 Collection으로(기능 확장 재정의)",credits:{UX:"Ellie"},category:"기능 히스토리",labels:["결정"],models:["SP4000T"],state:"적용됨",date:"2026.05.18",author:"Ellie",authorInitial:"E",status:"확인완료",
    desc:"기존 Favorite(즐겨찾기)의 노래 단독 저장을 확장, 노래·앨범·아티스트·플레이리스트를 폴더별로 저장·관리하는 컬렉션으로 재정의. SP4000T부터 적용.",
    body:`■■ 기능 개요
 
@@ -92,7 +98,7 @@ AK Connect로 추가된 곡은 컬렉션 추가 불가.
 | PD series | 순차 반영 예정 | 현재 RC 계획 없음 |`,
    tags:["RC","Collection","컬렉션","Favorite","즐겨찾기","UX개선"],
    links:[{label:"용어사전 — 컬렉션",url:"#search:컬렉션"},{label:"용어사전 — Favorite",url:"#search:Favorite"}]},
-  {id:207,title:"설정 - 레이블 추가 및 재배열",credits:{UX:"Ellie"},category:"기능 히스토리",labels:["RC"],models:[],date:"2026.05.26",author:"Ellie",authorInitial:"E",status:"확인완료",statusText:"UX/PM 확인",
+  {id:207,title:"설정 - 레이블 추가 및 재배열",credits:{UX:"Ellie"},category:"기능 히스토리",labels:["결정"],models:["공통"],state:"미정",date:"2026.05.26",author:"Ellie",authorInitial:"E",status:"확인완료",statusText:"UX/PM 확인",
    desc:"기존 아이콘만으로 구분되던 설정 화면에 레이블을 추가하고, 각 그룹 성격에 맞게 항목 순서를 재배열한 UX 개선.",
    body:`■■ 기능 개요
 
@@ -132,7 +138,7 @@ AK Connect로 추가된 곡은 컬렉션 추가 불가.
    tags:["RC","Setting","설정","설정레이블","설정재배열","UX개선"],
    images:[],
    links:[]},
-  {id:201,title:"사용자 리서치: 리서치 배경 및 진행 개요",credits:{UX:"Ellie, Luna"},category:"기능 히스토리",labels:["Research"],models:[],date:"2025.05.01",author:"Ellie",authorInitial:"E",status:"확인완료",
+  {id:201,title:"사용자 리서치: 리서치 배경 및 진행 개요",credits:{UX:"Ellie, Luna"},category:"기능 히스토리",labels:["리서치"],models:["공통"],state:"",date:"2025.05.01",author:"Ellie",authorInitial:"E",status:"확인완료",
    desc:"Astell&Kern DAP 사용자의 UXUI 사용성 개선을 위한 데이터 수집 목적으로 설문조사 → 인터뷰 → UT 3단계 사용자 리서치를 기획·운영.",
    body:`■■ 개요
 
@@ -185,7 +191,7 @@ Astell&Kern DAP 사용자의 UXUI 사용성 개선을 위한 데이터 수집 �
      {label:"피그마 — 설문조사 PT",url:"https://www.figma.com/design/ZyJfraOa2ar1OzIxrnFtZT/PT?node-id=341-1377&t=UACsWYCME5cKHixO-1"},
      {label:"피그마 — 사용자 리서치",url:"https://www.figma.com/design/tLsh1eYPj5t4BKJMRl40uq/-25-%EC%82%AC%EC%9A%A9%EC%9E%90-%EB%A6%AC%EC%84%9C%EC%B9%98?node-id=126-79&t=ZfveNSGhru3yBWKR-1"}
    ]},
-  {id:203,title:"사용자 리서치: 설문조사 결과",credits:{UX:"Ellie, Luna"},category:"기능 히스토리",labels:["Research"],models:[],date:"2025.09.30",author:"Ellie",authorInitial:"E",status:"확인완료",
+  {id:203,title:"사용자 리서치: 설문조사 결과",credits:{UX:"Ellie, Luna"},category:"기능 히스토리",labels:["리서치"],models:["공통"],state:"",date:"2025.09.30",author:"Ellie",authorInitial:"E",status:"확인완료",
    desc:"AK DAP 사용 행태 조사·음질 설정 개선 2종 설문 결과. 주요 타겟 3~40대 남성, UX/UI 불편 경험 91.5%, 반응 속도 개선 1순위.",
    body:`■■ 설문 진행 개요
 
@@ -286,7 +292,7 @@ DAP에서 주로 이용하는 콘텐츠: 스트리밍 서비스(Spotify, Apple M
      {label:"AK_UXUI_Survey_251020.pdf",url:"files/AK_UXUI_Survey_251020.pdf"}
    ],
    links:[]},
-  {id:205,title:"사용자 리서치: 인터뷰·UT 결과 및 종합 인사이트",credits:{UX:"Ellie, Luna"},category:"기능 히스토리",labels:["Research"],models:[],date:"2026.04.30",author:"Ellie",authorInitial:"E",status:"확인완료",
+  {id:205,title:"사용자 리서치: 인터뷰·UT 결과 및 종합 인사이트",credits:{UX:"Ellie, Luna"},category:"기능 히스토리",labels:["리서치"],models:["공통"],state:"",date:"2026.04.30",author:"Ellie",authorInitial:"E",status:"확인완료",
    desc:"설문(210명) → 인터뷰(9명) → UT(9명) 3단계 리서치 종합. 알림패널 중심 사용 패턴, 설정 접근성, 경쟁사 UX 격차 등 핵심 인사이트 도출.",
    body:`■■ 리서치 개요
 
@@ -391,7 +397,7 @@ AK 유지되는 강점: 원음 재생 철학과 음질 완성도 / 레퍼런스 
      {label:"AK_UXUI_Interview_260423.pdf",url:"files/AK_UXUI_Interview_260423.pdf"}
    ],
    links:[]},
-  {id:202,title:"Google Analytics (GA) 미탑재 배경",credits:{UX:"Ellie"},category:"기능 히스토리",labels:["Others"],models:[],date:"2025.09.30",author:"Ellie",authorInitial:"E",
+  {id:202,title:"Google Analytics (GA) 미탑재 배경",credits:{UX:"Ellie"},category:"기능 히스토리",labels:["결정"],models:["공통"],state:"",date:"2025.09.30",author:"Ellie",authorInitial:"E",
    desc:"AK DAP에 Google Analytics를 탑재하지 못한 배경. 구글 공식 인증 업체 등록 미비 및 비용 이슈로 중간에 제거된 것으로 파악.",
    body:`■■ 배경
 
@@ -411,7 +417,7 @@ AK와 같은 소규모 업체에는 해당 인증이 부여되지 않음.
 최종 의사결정은 Jay 또는 Luke 쪽에서 이루어짐.`,
    tags:["Others","GA","GoogleAnalytics","구글애널리틱스","분석"],
    links:[]},
-  {id:204,title:"Lottie 애니메이션 미적용 배경",credits:{UX:"Ellie"},category:"기능 히스토리",labels:["Others"],models:[],date:"2025.10.28",author:"Ellie",authorInitial:"E",
+  {id:204,title:"Lottie 애니메이션 미적용 배경",credits:{UX:"Ellie"},category:"기능 히스토리",labels:["결정"],models:["공통"],state:"",date:"2025.10.28",author:"Ellie",authorInitial:"E",
    desc:"DAP 음악 재생단 부하 최소화 방침으로 애니메이션 작업을 제한. Lottie 포함 포맷 무관하게 애니메이션 자체가 CPU·메모리 부하 유발.",
    body:`■■ 배경
 
@@ -434,7 +440,7 @@ GIF·Lottie 포맷에 무관하게 CPU·메모리 부하가 발생함.
 정확한 적용 범위는 Hoya·Hwan에게 확인 필요.`,
    tags:["Others","Lottie","애니메이션","GIF","CPU","메모리","부하"],
    links:[{label:"Lottie Files",url:"https://lottiefiles.com/kr/"}]},
-  {id:208,title:"펌웨어 업데이트 방법",credits:{UX:"Ellie, Luna"},category:"기능 히스토리",labels:["Others"],models:[],date:"2026.06.24",author:"Ellie",authorInitial:"E",
+  {id:208,title:"펌웨어 업데이트 방법",credits:{UX:"Ellie, Luna"},category:"기능 히스토리",labels:["규칙"],models:["공통"],state:"",date:"2026.06.24",author:"Ellie",authorInitial:"E",
    desc:"펌웨어 업데이트 절차 안내. FileZilla(FTP)·Android 파일 전송(Mac) 설치 후, release 경로의 모델별 .hex 파일을 기기로 옮기는 방법.",
    body:`■■ 1. FileZilla 설치하기
 
@@ -470,7 +476,7 @@ FileZilla로 접속 후, 아래 경로에서 해당 모델의 .hex 파일을 And
      {label:"FileZilla 다운로드",url:"https://filezilla-project.org/download.php#close"},
      {label:"Android 파일 전송 다운로드 (Mac)",url:"https://www.softonic.kr/download/android-file-transfer/mac/post-download?dt=internalDownload"},
    ]},
-  {id:209,title:"설정 - 외부 조작 잠금 문구",credits:{PM:"Luke",PL:"Kane",UX:"Ellie"},category:"기능 히스토리",labels:["RC"],models:["PD20","SP4000T","PD5"],date:"2026.07.21",author:"Ellie",authorInitial:"E",status:"작성",statusText:"UX/PM 확인",
+  {id:209,title:"설정 - 외부 조작 잠금 문구",credits:{PM:"Luke",PL:"Kane",UX:"Ellie"},category:"기능 히스토리",labels:["결정"],models:["SP4000T","PD20","PD5"],state:"적용됨",date:"2026.07.21",author:"Ellie",authorInitial:"E",status:"작성",statusText:"UX/PM 확인",
    desc:"PD5·SP4000T·PD20의 '외부 조작 잠금' 안내 문구가 제품별 잠금 방식(SW/HW·스위치 위치) 차이로 상이. SP4000T는 화면상태·위치 표현을 빼고 'Lock 버튼을 누르면 잠깁니다'로 확정.",
    body:`■■■ 배경
 
@@ -524,7 +530,7 @@ PD20 문구에는 '기기 측면의 Hold 스위치'라고 위치가 명시돼 �
      {src:"images/history/Lock_pd5_quick.png",caption:"Lock_pd5_quick.png"}
    ],
    links:[{label:"Figma_UX",url:"https://www.figma.com/design/pat4EALAOO9XW7Hynp30Md/UX_Crimson_F_U?node-id=9368-9568&t=nQHmOPn112ZLgran-1"}]},
-  {id:210,title:"설정 - 배터리 보호 모드 상한값 선택",credits:{PM:"Jay, Luke",UX:"Ellie"},category:"기능 히스토리",labels:["RC"],models:["SP4000T"],date:"2026.04.29",author:"Ellie",authorInitial:"E",
+  {id:210,title:"설정 - 배터리 보호 모드 상한값 선택",credits:{PM:"Jay, Luke",UX:"Ellie"},category:"기능 히스토리",labels:["결정"],models:["SP4000T"],state:"적용됨",date:"2026.04.29",author:"Ellie",authorInitial:"E",
    desc:"기존 85% 단일 고정이던 배터리 보호 모드 충전 상한값을 80/85/90/95% 4단계 중 사용자가 직접 선택하도록 변경. SP4000T부터 적용.",
    body:`■■ 결론
 
