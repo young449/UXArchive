@@ -188,11 +188,10 @@ function _goList(cat, q, push) {
 ============================================= */
 /* 항목이 속한 라인. 라인이 둘 이상 걸치면 자동으로 '공통'.
    RC로 다른 라인까지 퍼지면 models에 모델만 추가하면 공통으로 바뀐다. */
-function lineOf(d){
+function linesOf(d){
   const ms=(d.models||[]).filter(m=>m && m!=="공통");
-  if(!ms.length) return "공통";
-  const set=new Set(ms.map(m=>MODEL_LINE[m]||m));
-  return set.size===1 ? [...set][0] : "공통";
+  if(!ms.length) return ["공통"];              // 모델 무관 = 공통
+  return [...new Set(ms.map(m=>MODEL_LINE[m]||m))];  // 두 라인에 걸치면 둘 다에 잡힌다
 }
 
 /* 유형 축 — 글의 성격. 값이 시간에 따라 변하지 않는다. */
@@ -204,7 +203,7 @@ function getTypeChips(cat){
 /* 모델 축 — 데이터에서 자동 수집. 모델이 늘어도 코드를 고칠 필요가 없다. */
 function getModelChips(cat){
   if(cat!=="기능 히스토리") return [];
-  const set=new Set(DATA.filter(d=>d.category===cat).map(lineOf));
+  const set=new Set(); DATA.filter(d=>d.category===cat).forEach(d=>linesOf(d).forEach(l=>set.add(l)));
   const rest=[...set].filter(m=>m!=="공통").sort((x,y)=>x.localeCompare(y,["en","ko"],{numeric:true}));
   return ["전체",...(set.has("공통")?["공통"]:[]),...rest];
 }
@@ -223,11 +222,11 @@ function renderChipBar() {
     return DATA.filter(d=>{
       if(d.category!==S.cat) return false;
       if(axis==="type"){
-        if(S.model!=="전체" && lineOf(d)!==S.model) return false;
+        if(S.model!=="전체" && !linesOf(d).includes(S.model)) return false;
         return key==="전체" || (d.labels||[]).includes(key);
       }
       if(S.chip!=="전체" && !(d.labels||[]).includes(S.chip)) return false;
-      return key==="전체" || lineOf(d)===key;
+      return key==="전체" || linesOf(d).includes(key);
     }).length;
   };
 
@@ -325,7 +324,7 @@ function filterData(){
     if(S.cat==="용어사전" && S.chip!=="전체" && d.glossTab!==S.chip) return false;
     if(S.cat==="기능 히스토리"){
       if(S.chip!=="전체"  && !(d.labels||[]).includes(S.chip))  return false;  // 유형 축
-      if(S.model!=="전체" && lineOf(d)!==S.model) return false;               // 모델 축(라인)
+      if(S.model!=="전체" && !linesOf(d).includes(S.model)) return false;     // 모델 축(라인)
     }
     if(!q)return true;
     return d.title.toLowerCase().includes(q);
@@ -361,7 +360,7 @@ function renderCards(){
   if(items.length===0){empty.classList.add("show");if(S.q&&S.q.length>=1&&typeof gtag!=="undefined"){gtag("event","search_no_results",{search_term:S.q,category:S.cat});}return;}
   empty.classList.remove("show");
   const q=S.q.trim().toLowerCase();
-  const MAX_MODELS=3;
+  const MAX_MODELS=2;   // 목록은 짧게. 전체는 상세에서 본다
 
   // 제품 모델: 썸네일 그리드
   if(S.cat==="제품 모델"){
@@ -420,7 +419,7 @@ function renderCards(){
     const modelBadges=labelBadges+divider+vis.map(m=>`<span class="badge ${DAP_CLS[m]||'b-more'}">${m}</span>`).join("")
       +(hid>0?`<span class="badge b-more">+${hid}</span>`:"");
     const catBadge=!S.cat?`<span class="badge is-type ${CAT_CLS[d.category]||'b-more'}">${d.category}</span>`:'';
-    // 배지는 축마다 모양이 다르다: 유형=채움 / 적용=알약+점 / 모델=테두리
+    // 목록에서는 배지 껍데기를 벗기고 제목 위 한 줄 텍스트로 (제목이 주인공)
     const badges=badgeGroups(
       catBadge+glossBadge+labelBadges,
       d.state?`<span class="badge is-state ${STATE_CLS[d.state]||'b-state-off'}">${d.state}</span>`:'',
@@ -431,8 +430,8 @@ function renderCards(){
     const fmtDate=dp.length===3?`${dp[0]}. ${parseInt(dp[1])}. ${parseInt(dp[2])}.`:d.date;
     // 제목 → 배지 → 작성자·날짜 순
     el.innerHTML=`
+      ${badges?`<div class="card-eyebrow">${badges}</div>`:""}
       <div class="card-title">${hl(d.title,q)}</div>
-      ${badges?`<div class="card-badges">${badges}</div>`:""}
       <div class="card-meta">
         <span class="card-meta-author">${d.author}</span>
         <span class="card-meta-sep">·</span>

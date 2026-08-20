@@ -531,8 +531,21 @@ body.is-list #list-page{display:flex}
 .card-models-row{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;overflow:hidden}
 .card-title{font-size:18px;font-weight:600;color:var(--text-1);line-height:1.4;margin-bottom:8px;}
 .card-meta{display:flex;align-items:center;gap:6px}
-.card-badges{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:0 0 8px}
-.card-badges:empty{display:none;margin:0}
+/* 목록 eyebrow — 배지 껍데기를 벗겨 조용한 한 줄로 */
+.card-eyebrow{display:flex;align-items:center;flex-wrap:wrap;gap:0;margin:0 0 7px;line-height:1.4}
+.card-eyebrow:empty{display:none;margin:0}
+.card-eyebrow .badge{
+  background:transparent!important;border:none!important;
+  padding:0;font-size:12px;letter-spacing:0;border-radius:0;
+}
+.card-eyebrow .badge+.badge{margin-left:6px}
+.card-eyebrow .badge.is-model{color:var(--n-400);font-weight:400;opacity:1}
+.card-eyebrow .badge.is-state::before{width:4px;height:4px;margin-right:4px}
+.card-eyebrow .badge-divider{
+  width:auto;height:auto;background:none;margin:0 7px;
+  color:var(--n-600);font-size:12px;
+}
+.card-eyebrow .badge-divider::after{content:"·"}
 .card-meta-author{font-size:14px;font-weight:500;color:var(--text-2)}
 .card-meta-sep{font-size:14px;color:var(--n-600)}
 .card-meta-date{font-size:14px;color:var(--n-500)}
