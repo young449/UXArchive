@@ -539,15 +539,32 @@ body.is-list #list-page{display:flex}
   padding:0;font-size:12px;letter-spacing:0;border-radius:0;
 }
 .meta-line .badge+.badge{margin-left:6px}
-/* 유형은 단색 — 색은 '적용 상태'에만 쓴다 (한 줄에 컬러 하나) */
-.meta-line .badge.is-type{color:var(--text-1);font-weight:600}
-.meta-line .badge.is-model{color:var(--n-400);font-weight:400;opacity:1}
-.meta-line .badge.is-state::before{width:4px;height:4px;margin-right:4px}
-.meta-line .badge-divider{
-  width:auto;height:auto;background:none;margin:0 7px;
-  color:var(--n-600);font-size:12px;
+/* 유형 — 테두리 칩. 색이 아니라 '형태'로 축을 가른다 */
+.meta-line .badge.is-type{
+  background:var(--a-w06)!important;
+  border:1px solid var(--div-2)!important;
+  border-radius:5px;padding:2px 8px;
+  font-size:11px;font-weight:600;color:var(--text-1);
 }
-.meta-line .badge-divider::after{content:"·"}
+/* 적용 — 컬러 알약. 색은 이 축에만 쓴다 */
+.meta-line .badge.is-state{
+  border-radius:var(--r-xl);padding:2px 9px;
+  font-size:11px;font-weight:600;
+}
+.meta-line .badge.is-state::before{display:none}
+.meta-line .badge.is-state.b-state-on{background:rgba(63,224,189,0.15)!important;color:#3FE0BD}
+.meta-line .badge.is-state.b-state-plan{background:rgba(255,200,61,0.14)!important;color:#FFC83D}
+.meta-line .badge.is-state.b-state-off{
+  background:var(--a-w06)!important;border:1px solid var(--div-1)!important;color:var(--n-400);
+}
+/* 모델 — 가장 조용하게 */
+.meta-line .badge.is-model{color:var(--n-400);font-weight:400;opacity:1}
+/* 축 구분선 — 얇은 세로선 */
+.meta-line .badge-divider{
+  width:1px;height:11px;background:var(--div-2);
+  margin:0 9px;border-radius:0;
+}
+.meta-line .badge-divider::after{content:none}
 /* 모델 사이 콤마 */
 .meta-line .sep-comma{
   color:var(--n-500);font-size:12px;margin:0 4px 0 0;
