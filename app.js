@@ -186,6 +186,15 @@ function _goList(cat, q, push) {
 /* =============================================
    SECTION: js-chip-bar
 ============================================= */
+/* 항목이 속한 라인. 라인이 둘 이상 걸치면 자동으로 '공통'.
+   RC로 다른 라인까지 퍼지면 models에 모델만 추가하면 공통으로 바뀐다. */
+function lineOf(d){
+  const ms=(d.models||[]).filter(m=>m && m!=="공통");
+  if(!ms.length) return "공통";
+  const set=new Set(ms.map(m=>MODEL_LINE[m]||m));
+  return set.size===1 ? [...set][0] : "공통";
+}
+
 /* 유형 축 — 글의 성격. 값이 시간에 따라 변하지 않는다. */
 function getTypeChips(cat){
   if(cat==="기능 히스토리") return ["전체","결정","규칙","리서치"];
@@ -195,8 +204,7 @@ function getTypeChips(cat){
 /* 모델 축 — 데이터에서 자동 수집. 모델이 늘어도 코드를 고칠 필요가 없다. */
 function getModelChips(cat){
   if(cat!=="기능 히스토리") return [];
-  const set=new Set();
-  DATA.filter(d=>d.category===cat).forEach(d=>(d.models||[]).forEach(m=>set.add(m)));
+  const set=new Set(DATA.filter(d=>d.category===cat).map(lineOf));
   const rest=[...set].filter(m=>m!=="공통").sort((x,y)=>x.localeCompare(y,["en","ko"],{numeric:true}));
   return ["전체",...(set.has("공통")?["공통"]:[]),...rest];
 }
@@ -215,11 +223,11 @@ function renderChipBar() {
     return DATA.filter(d=>{
       if(d.category!==S.cat) return false;
       if(axis==="type"){
-        if(S.model!=="전체" && !(d.models||[]).includes(S.model)) return false;
+        if(S.model!=="전체" && lineOf(d)!==S.model) return false;
         return key==="전체" || (d.labels||[]).includes(key);
       }
       if(S.chip!=="전체" && !(d.labels||[]).includes(S.chip)) return false;
-      return key==="전체" || (d.models||[]).includes(key);
+      return key==="전체" || lineOf(d)===key;
     }).length;
   };
 
@@ -317,7 +325,7 @@ function filterData(){
     if(S.cat==="용어사전" && S.chip!=="전체" && d.glossTab!==S.chip) return false;
     if(S.cat==="기능 히스토리"){
       if(S.chip!=="전체"  && !(d.labels||[]).includes(S.chip))  return false;  // 유형 축
-      if(S.model!=="전체" && !(d.models||[]).includes(S.model)) return false;  // 모델 축
+      if(S.model!=="전체" && lineOf(d)!==S.model) return false;               // 모델 축(라인)
     }
     if(!q)return true;
     return d.title.toLowerCase().includes(q);
@@ -411,18 +419,19 @@ function renderCards(){
     const divider=(labelBadges&&vis.length>0)?`<span class="badge-divider"></span>`:"";
     const modelBadges=labelBadges+divider+vis.map(m=>`<span class="badge ${DAP_CLS[m]||'b-more'}">${m}</span>`).join("")
       +(hid>0?`<span class="badge b-more">+${hid}</span>`:"");
-    const hasBadge=(vis.length>0||labelBadges||glossBadge);
     const catBadge=!S.cat?`<span class="badge ${CAT_CLS[d.category]||'b-more'}">${d.category}</span>`:'';
-    const badgeRow=(hasBadge||catBadge)
-      ?`<div class="card-badges">${catBadge}${glossBadge}${modelBadges}</div>`
-      :"";
+    const stateBadge=d.state?`<span class="badge ${STATE_CLS[d.state]||'b-state-off'}">${d.state}</span>`:'';
+    // 배지 순서: 유형 → 적용 → 모델
+    const badges=catBadge+glossBadge+labelBadges+stateBadge
+      +vis.map(m=>`<span class="badge ${DAP_CLS[m]||'b-more'}">${m}</span>`).join("")
+      +(hid>0?`<span class="badge b-more">+${hid}</span>`:"");
     const dp=d.date.split(".");
     const fmtDate=dp.length===3?`${dp[0]}. ${parseInt(dp[1])}. ${parseInt(dp[2])}.`:d.date;
-    // 제목이 먼저 읽히도록 배지는 제목 아래 메타 라인으로 내린다
+    // 제목 → 배지 → 작성자·날짜 순
     el.innerHTML=`
       <div class="card-title">${hl(d.title,q)}</div>
+      ${badges?`<div class="card-badges">${badges}</div>`:""}
       <div class="card-meta">
-        ${badgeRow}
         <span class="card-meta-author">${d.author}</span>
         <span class="card-meta-sep">·</span>
         <span class="card-meta-date">${fmtDate}</span>
@@ -467,7 +476,12 @@ function _openDetail(id, prevPage, push){
   const detailLabels = d.labels
     ? d.labels.map(l=>`<span class="badge ${LABEL_CLS[l]||""}">${l}</span>`).join("")
     : "";
-  document.getElementById("d-models").innerHTML=detailLabels+d.models.map(m=>`<span class="badge ${DAP_CLS[m]||""}">${m}</span>`).join("");
+  const detailState = d.state
+    ? `<span class="badge ${STATE_CLS[d.state]||"b-state-off"}">${d.state}</span>`
+    : "";
+  // 유형 → 적용 → 모델
+  document.getElementById("d-models").innerHTML=
+    detailLabels+detailState+d.models.map(m=>`<span class="badge ${DAP_CLS[m]||""}">${m}</span>`).join("");
   // 제목
   document.getElementById("d-title").textContent=d.title;
   // 날짜 포맷: 2026.05.18 → 2026. 5. 18.
@@ -478,11 +492,7 @@ function _openDetail(id, prevPage, push){
   // 확인 세그먼트 (작성자 · 확인 · 날짜) — d.verifiedBy: ["기획파트", ...]
   const vEl=document.getElementById("d-verify");
   const vSep=document.getElementById("d-sep-v");
-  if(d.state){
-    // 상태는 시간이 지나면 바뀌는 값 — 필터가 아니라 표시 전용
-    vEl.textContent=d.state;
-    vEl.style.display=""; if(vSep) vSep.style.display="";
-  } else if(d.verifiedBy && d.verifiedBy.length){
+  if(d.verifiedBy && d.verifiedBy.length){
     vEl.textContent="확인 "+d.verifiedBy.join(", ");
     vEl.style.display=""; if(vSep) vSep.style.display="";
   } else {
