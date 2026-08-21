@@ -17,6 +17,53 @@ function gaPage(path, title){
 }
 
 /* =============================================
+   SECTION: ga-context (검색 맥락 · 디바운스)
+   - gaSearchCtx()  : 지금 보고 있는 화면이 검색 결과인지 + 검색어
+   - gaSearch()     : 타이핑 중간값(ㅋ/커/컬…)이 쌓이지 않게 디바운스
+   - gaRefClick()   : 참고 링크 클릭 (검색 맥락 포함)
+============================================= */
+var GA_SEARCH_DEBOUNCE = 900;  // ms — 타이핑 멈춘 뒤 이만큼 지나야 전송
+var GA_SEARCH_MINLEN    = 2;   // 이 글자 수 미만은 전송하지 않음
+
+function gaSearchCtx(){
+  var q = (S.q || "").trim();
+  var c = { from_search: q ? "true" : "false" };
+  if(q) c.search_term = q;
+  return c;
+}
+
+var _gaSearchTimer = null;
+function gaSearch(term, where){
+  if(typeof gtag==="undefined") return;
+  term = (term || "").trim();
+  clearTimeout(_gaSearchTimer);
+  if(term.length < GA_SEARCH_MINLEN) return;
+  _gaSearchTimer = setTimeout(function(){
+    gtag("event","search",{ search_term: term, search_location: where });
+  }, GA_SEARCH_DEBOUNCE);
+}
+
+var _gaNoResTimer = null;
+function gaSearchNoResults(term, category){
+  if(typeof gtag==="undefined") return;
+  term = (term || "").trim();
+  clearTimeout(_gaNoResTimer);
+  if(term.length < GA_SEARCH_MINLEN) return;
+  _gaNoResTimer = setTimeout(function(){
+    gtag("event","search_no_results",{ search_term: term, category: category });
+  }, GA_SEARCH_DEBOUNCE);
+}
+
+function gaRefClick(el){
+  if(typeof gtag==="undefined") return;
+  gtag("event","click_reference_link", Object.assign({
+    link_label:     el.dataset.label,
+    document_id:    el.dataset.docId,
+    document_title: el.dataset.docTitle || ""
+  }, gaSearchCtx()));
+}
+
+/* =============================================
    SECTION: js-tag-page
 ============================================= */
 function goTag(tag) { _goTag(tag, true); }
@@ -299,7 +346,7 @@ function renderChipBar() {
   });
 
   const inp=document.getElementById("chip-search");
-  if(inp){inp.value=S.q||"";clearBtn.classList.toggle("show",!!inp.value);inp.addEventListener("input",()=>{S.q=inp.value;clearBtn.classList.toggle("show",!!inp.value);renderCards();if(S.q.length>=1&&typeof gtag!=="undefined"){gtag("event","search",{search_term:S.q,search_location:"category_"+S.cat});}});}
+  if(inp){inp.value=S.q||"";clearBtn.classList.toggle("show",!!inp.value);inp.addEventListener("input",()=>{S.q=inp.value;clearBtn.classList.toggle("show",!!inp.value);renderCards();gaSearch(S.q,"category_"+S.cat);});}
 
   if(wasSearchOpen){
     bar.classList.add("search-open");
@@ -357,8 +404,9 @@ function renderCards(){
   list.innerHTML="";
   const items=filterData();
   document.getElementById("count-num").textContent=items.length;
-  if(items.length===0){empty.classList.add("show");if(S.q&&S.q.length>=1&&typeof gtag!=="undefined"){gtag("event","search_no_results",{search_term:S.q,category:S.cat});}return;}
+  if(items.length===0){empty.classList.add("show");gaSearchNoResults(S.q,S.cat);return;}
   empty.classList.remove("show");
+  clearTimeout(_gaNoResTimer);   // 결과가 나왔으면 대기 중인 "결과없음" 전송을 취소
   const q=S.q.trim().toLowerCase();
   const MAX_MODELS=2;   // 목록은 짧게. 전체는 상세에서 본다
 
@@ -440,11 +488,11 @@ function _openDetail(id, prevPage, push){
   window._docOpenTime = Date.now();
   window._docOpenId = id;
   if(typeof gtag !== 'undefined') {
-    gtag('event', 'view_document', {
+    gtag('event', 'view_document', Object.assign({
       document_id: id,
       document_title: d.title,
       document_category: d.category
-    });
+    }, gaSearchCtx()));
   }
   S.prevPage = prevPage !== undefined ? prevPage : document.body.className;
   if (push) pushHistory({page:"detail", id, prevPage: S.prevPage});
@@ -572,7 +620,7 @@ function _openDetail(id, prevPage, push){
         if(tgt) return `<button class="dlink" onclick="closeDetail(false);openDetail(${tgt.id})">${icon}${l.label}</button>`;
         return `<button class="dlink" disabled style="opacity:.5">${icon}${l.label}</button>`;
       }
-      return `<a class="dlink" href="${l.url}" target="_blank" rel="noopener" data-doc-id="${d.id}" data-label="${l.label}" onclick="if(typeof gtag!=='undefined'){gtag('event','click_reference_link',{link_label:this.dataset.label,document_id:this.dataset.docId});}">${icon}${l.label}</a>`;
+      return `<a class="dlink" href="${l.url}" target="_blank" rel="noopener" data-doc-id="${d.id}" data-label="${l.label}" data-doc-title="${(d.title||'').replace(/"/g,'&quot;')}" onclick="gaRefClick(this)">${icon}${l.label}</a>`;
     }).join("")
     :"";
   document.getElementById("d-links-wrap").style.display=links.length?"":"none";
@@ -1021,9 +1069,7 @@ function renderBody(text) {
     hc.classList.toggle("show", !!v);
     if (v.length >= 1) {
       renderAC(v);
-      if(typeof gtag!=="undefined"){
-        gtag("event","search",{search_term:v,search_location:"home"});
-      }
+      gaSearch(v,"home");
     } else {
       renderHistory();
     }
