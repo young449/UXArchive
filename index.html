@@ -28,6 +28,8 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-VT3T9KRWQ7', {
+      // app.js의 gaPage()가 화면별 page_view를 직접 보내므로 자동 전송은 끈다 (중복 방지)
+      send_page_view: false,
       mode: window.__GA_MODE__,
       user_properties: { member: window.__GA_MEMBER__ }
     });
