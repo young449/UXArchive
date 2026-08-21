@@ -2,12 +2,35 @@
 <html lang="ko">
 <head>
   <!-- Google Analytics (GA4) — UXArchive 전용 속성 -->
+  <!-- 라벨링: member(누가) / mode(test|real) — gtag 로드보다 반드시 먼저 실행 -->
+  <script>
+  (function () {
+    var qs = new URLSearchParams(location.search);
+
+    // (1) 누구인가 — ?u=ellie 로 한 번만 지정하면 계속 유지
+    if (qs.get('u')) localStorage.setItem('ga_member', qs.get('u'));
+    var member = localStorage.getItem('ga_member') || 'unknown';
+
+    // (2) 테스트인가 — 로컬은 자동, 실서버는 ?test=1 (탭 닫으면 자동 해제)
+    var isLocal = location.protocol === 'file:' ||
+                  /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    if (qs.get('test') === '1') sessionStorage.setItem('ga_test', '1');
+    if (qs.get('test') === '0') sessionStorage.removeItem('ga_test');
+    var mode = (isLocal || sessionStorage.getItem('ga_test') === '1') ? 'test' : 'real';
+
+    window.__GA_MODE__ = mode;
+    window.__GA_MEMBER__ = member;
+  })();
+  </script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-VT3T9KRWQ7"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-VT3T9KRWQ7');
+    gtag('config', 'G-VT3T9KRWQ7', {
+      mode: window.__GA_MODE__,
+      user_properties: { member: window.__GA_MEMBER__ }
+    });
   </script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
