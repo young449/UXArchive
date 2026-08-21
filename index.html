@@ -20,6 +20,8 @@
 
     window.__GA_MODE__ = mode;
     window.__GA_MEMBER__ = member;
+    // test 모드일 때만 GA4 DebugView에 노출 (?test=1 → 디버그 켜짐)
+    window.__GA_DEBUG__ = (mode === 'test');
   })();
   </script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-VT3T9KRWQ7"></script>
@@ -27,12 +29,14 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-VT3T9KRWQ7', {
+    var gaConfig = {
       // app.js의 gaPage()가 화면별 page_view를 직접 보내므로 자동 전송은 끈다 (중복 방지)
       send_page_view: false,
       mode: window.__GA_MODE__,
       user_properties: { member: window.__GA_MEMBER__ }
-    });
+    };
+    if (window.__GA_DEBUG__) gaConfig.debug_mode = true;
+    gtag('config', 'G-VT3T9KRWQ7', gaConfig);
   </script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
@@ -363,7 +367,7 @@ const DATA = [...DATA_ux, ...DATA_glossary];
 <!-- =============================================
    SECTION: js-app
 ============================================= -->
-<script src="app.js?v=20260821a"></script>
+<script src="app.js?v=20260821b"></script>
 
 </body>
 </html>
