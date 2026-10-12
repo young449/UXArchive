@@ -617,7 +617,7 @@ DAP 기기 자체에 탑재되며(모바일 앱 X), 헤드폰 DB는 최초 1회 
 ■■ 참고
 
 - 벤치마크: [AutoEQ](https://autoeq.app/), [FiiO Control Auto EQ](https://fiiocontrol.fiio.com/equalizer/auto-eq)
-- 참고: [개발 목업(Patrick)](files/AuralTune_mockup.html) 참고`,
+- 참고: [개발 목업(Patrick)](https://young449.github.io/UXArchive/files/AuralTune_mockup.html)`,
    tags:["AuralTune","Aural Tune","오럴튠","AutoEQ","EQ","이퀄라이저","보정","헤드폰","타깃","파라메트릭","설정","PD30"],
    files:[
      {label:"AuralTune_mockup.html",url:"files/AuralTune_mockup.html"}
