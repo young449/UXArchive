@@ -731,6 +731,12 @@ function renderBody(text) {
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
+  // ── 인라인 링크: [텍스트](URL) → <a> (http(s)·files/·# 경로만 허용)
+  function inlineLinks(h) {
+    return h.replace(/\[([^\]]+)\]\(((?:https?:\/\/|files\/|#)[^)\s]+)\)/g,
+      (m, label, url) => `<a class="body-link" href="${url.replace(/"/g,'&quot;')}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:3px;">${label}</a>`);
+  }
+
   while (i < lines.length) {
     const line = lines[i];
     const trimmed = line.trim();
@@ -815,7 +821,7 @@ function renderBody(text) {
       filtered.forEach((row, idx) => {
         const cells = row.trim().replace(/^\||\|$/g,'').split('|');
         const tag = idx === 0 ? 'th' : 'td';
-        html += '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
+        html += '<tr>' + cells.map(c => `<${tag}>${inlineLinks(c.trim())}</${tag}>`).join('') + '</tr>';
       });
       html += '</table>';
       result.push(html);
@@ -835,7 +841,7 @@ function renderBody(text) {
       filtered.forEach((row, idx) => {
         const cells = row.trim().replace(/^\||\|$/g,'').split('|');
         const tag = idx === 0 ? 'th' : 'td';
-        html += '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
+        html += '<tr>' + cells.map(c => `<${tag}>${inlineLinks(c.trim())}</${tag}>`).join('') + '</tr>';
       });
       html += '</table>';
       result.push(html);
@@ -844,7 +850,7 @@ function renderBody(text) {
 
     // ── 일반 텍스트
     openPre();
-    const escaped = trimmed === '' ? '' : escHtml(line);
+    const escaped = trimmed === '' ? '' : inlineLinks(escHtml(line));
     result.push(escaped + '\n');
     i++;
   }

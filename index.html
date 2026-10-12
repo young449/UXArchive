@@ -338,14 +338,14 @@
 <!-- =============================================
    SECTION: js-data
 ============================================= -->
-<script src="data_ux.js?v=20260721b"></script>
+<script src="data_ux.js?v=20261012"></script>
 <script src="data_glossary.js?v=20260721"></script>
 <script>
 const DAP_CLS = {"A&ultima":"b-ultima","PD series":"b-pd","Heritage":"b-her","Classic":"b-cl","SP3000":"b-sp3000","SP3000T":"b-sp3000","SP3000M":"b-sp3000","SP4000":"b-sp4000","SP4000T":"b-sp4000t","PD10":"b-pd","PD20":"b-pd","PD5":"b-pd","PD30":"b-pd","공통":"b-common"};
 /* 유형 축 배지 색 */
 const LABEL_CLS = {"결정":"b-decision","규칙":"b-rule","리서치":"b-research","A&ultima":"b-ultima","PD series":"b-pd"};
 /* 상태 배지 색 — 표시 전용(필터 아님) */
-const STATE_CLS = {"적용됨":"b-state-on","RC 예정":"b-state-plan","미정":"b-state-plan","미적용":"b-state-off"};
+const STATE_CLS = {"적용됨":"b-state-on","미적용":"b-state-off"};
 /* 모델 → 라인 매핑. 새 모델은 여기 한 줄만 추가하면 필터가 따라온다.
    매핑에 없는 모델은 그 이름 자체가 라인으로 잡힌다. */
 const MODEL_LINE = {
@@ -367,7 +367,7 @@ const DATA = [...DATA_ux, ...DATA_glossary];
 <!-- =============================================
    SECTION: js-app
 ============================================= -->
-<script src="app.js?v=20260821b"></script>
+<script src="app.js?v=20261012"></script>
 
 </body>
 </html>

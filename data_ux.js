@@ -6,7 +6,7 @@
 // [분류 축 3개 — 섞지 말 것]
 //  labels : 유형   "결정" | "규칙" | "리서치"        ← 필터 축 1
 //  models : 모델   ["공통"] 또는 ["SP4000T", ...]     ← 필터 축 2
-//  state  : 상태   "적용됨" | "RC 예정" | "미정" | "" ← 표시만, 필터 아님
+//  state  : 상태   "적용됨" | "미적용" | "" ← 표시만, 필터 아님
 //                  (시간이 지나면 값이 바뀌므로 필터로 쓰지 않는다)
 // =============================================
 
@@ -98,7 +98,7 @@ AK Connect로 추가된 곡은 컬렉션 추가 불가.
 | PD series | 순차 반영 예정 | 현재 RC 계획 없음 |`,
    tags:["RC","Collection","컬렉션","Favorite","즐겨찾기","UX개선"],
    links:[{label:"용어사전 — 컬렉션",url:"#search:컬렉션"},{label:"용어사전 — Favorite",url:"#search:Favorite"}]},
-  {id:207,title:"설정 - 레이블 추가 및 재배열",credits:{UX:"Ellie"},category:"기능 히스토리",labels:["결정"],models:["공통"],state:"미정",date:"2026.05.26",author:"Ellie",authorInitial:"E",status:"확인완료",statusText:"UX/PM 확인",
+  {id:207,title:"설정 - 레이블 추가 및 재배열",credits:{UX:"Ellie"},category:"기능 히스토리",labels:["결정"],models:["공통"],state:"미적용",date:"2026.05.26",author:"Ellie",authorInitial:"E",status:"확인완료",statusText:"UX/PM 확인",
    desc:"기존 아이콘만으로 구분되던 설정 화면에 레이블을 추가하고, 각 그룹 성격에 맞게 항목 순서를 재배열한 UX 개선.",
    body:`■■ 기능 개요
 
@@ -555,7 +555,7 @@ PD20 문구에는 '기기 측면의 Hold 스위치'라고 위치가 명시돼 �
 | PD series | 미적용 | 확인 필요 |`,
    tags:["RC","배터리보호모드","배터리","충전상한","충전","BatteryProtection","Battery","설정","SP4000T"],
    links:[]},
-  {id:211,title:"Aural Tune - 헤드폰 맞춤 자동 보정 기능 정의",credits:{PM:"Luke",UX:"Ellie",Dev:"Patrick"},category:"기능 히스토리",labels:["결정"],models:["PD30"],state:"미정",date:"2026.09.08",author:"Ellie",authorInitial:"E",
+  {id:211,title:"Aural Tune - 헤드폰 맞춤 자동 보정 기능 정의",credits:{PM:"Luke",UX:"Ellie",Dev:"Patrick"},category:"기능 히스토리",labels:["결정"],models:["PD30"],state:"미적용",date:"2026.09.08",author:"Ellie",authorInitial:"E",
    desc:"헤드폰·타깃 선택 시 측정 DB 기반으로 보정 커브를 자동 적용하는 Aural Tune 신규 정의. Easy/Pro 모드, 헤드폰 DB 다운로드·업데이트 포함. EQ와 별도 메뉴, 동시 On 불가. PD30 탑재 예정.",
    body:`■■ 결론
 
@@ -616,14 +616,14 @@ DAP 기기 자체에 탑재되며(모바일 앱 X), 헤드폰 DB는 최초 1회 
 
 ■■ 참고
 
-- 벤치마크: AutoEQ, FiiO Control Auto EQ (하단 참고 링크)
-- Easy/Pro 구조·Raw 그래프: 개발 목업(Patrick) 참고 (하단 첨부 파일)`,
+- 벤치마크: [AutoEQ](https://autoeq.app/), [FiiO Control Auto EQ](https://fiiocontrol.fiio.com/equalizer/auto-eq)
+- 참고: [개발 목업(Patrick)](files/AuralTune_mockup.html) 참고`,
    tags:["AuralTune","Aural Tune","오럴튠","AutoEQ","EQ","이퀄라이저","보정","헤드폰","타깃","파라메트릭","설정","PD30"],
    files:[
      {label:"AuralTune_mockup.html",url:"files/AuralTune_mockup.html"}
    ],
    links:[{label:"AutoEQ",url:"https://autoeq.app/"},{label:"FiiO Control Auto EQ",url:"https://fiiocontrol.fiio.com/equalizer/auto-eq"},{label:"개발 목업(Patrick)",url:"files/AuralTune_mockup.html"},{label:"용어사전 — EQ",url:"#search:EQ"}]},
-  {id:212,title:"화면 잠금 - EU 사이버 보안 규제 대응",credits:{PL:"Kane",UX:"Ellie"},category:"기능 히스토리",labels:["결정"],models:["PD30"],state:"미정",date:"2026.10.02",author:"Ellie",authorInitial:"E",
+  {id:212,title:"화면 잠금 - EU 사이버 보안 규제 대응",credits:{PL:"Kane",UX:"Ellie"},category:"기능 히스토리",labels:["결정"],models:["PD30"],state:"미적용",date:"2026.09.30",author:"Ellie",authorInitial:"E",
    desc:"EU 사이버 보안 규제 대응을 위한 화면 잠금(Screen Lock) 신규 정의. 패턴·PIN 2종 지원, 잠금 없음 선택 불가, 최초 설정(Provision) 시 Skip 없이 필수 설정. PD30 탑재 예정.",
    body:`■■ 결론
 
@@ -636,7 +636,7 @@ EU 사이버 보안 규제 대응을 위해 화면 잠금 기능이 추가되었
 
 - EU 사이버 보안 규제 대응을 위해 Screen Lock 기능 필요 (개발 내부 테스트 완료)
 - 잠금 방식 "없음": 인증업체 확인 결과 허용 불가 → 패턴·PIN만 제공
-- Provision: 기존 초기화 플로우(설정 초기화 → 언어 설정)에 잠금 설정 단계 없음 → 보안 설정 단계 추가, Skip 불가 (10/2)
+- Provision: 기존 초기화 플로우(설정 초기화 → 언어 설정)에 잠금 설정 단계 없음 → 보안 설정 단계 추가, Skip 불가 (2차 회의 261002)
 
 
 ■■ 변경 전 / 후
