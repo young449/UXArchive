@@ -555,7 +555,7 @@ PD20 문구에는 '기기 측면의 Hold 스위치'라고 위치가 명시돼 �
 | PD series | 미적용 | 확인 필요 |`,
    tags:["RC","배터리보호모드","배터리","충전상한","충전","BatteryProtection","Battery","설정","SP4000T"],
    links:[]},
-  {id:211,title:"Aural Tune - 헤드폰 맞춤 자동 보정 기능 정의",credits:{PM:"Luke",UX:"Ellie",개발:"Patrick"},category:"기능 히스토리",labels:["결정"],models:["PD30"],state:"미정",date:"2026.10.12",author:"Ellie",authorInitial:"E",
+  {id:211,title:"Aural Tune - 헤드폰 맞춤 자동 보정 기능 정의",credits:{PM:"Luke",UX:"Ellie",Dev:"Patrick"},category:"기능 히스토리",labels:["결정"],models:["PD30"],state:"미정",date:"2026.09.08",author:"Ellie",authorInitial:"E",
    desc:"헤드폰·타깃 선택 시 측정 DB 기반으로 보정 커브를 자동 적용하는 Aural Tune 신규 정의. Easy/Pro 모드, 헤드폰 DB 다운로드·업데이트 포함. EQ와 별도 메뉴, 동시 On 불가. PD30 탑재 예정.",
    body:`■■ 결론
 
@@ -616,10 +616,13 @@ DAP 기기 자체에 탑재되며(모바일 앱 X), 헤드폰 DB는 최초 1회 
 
 ■■ 참고
 
-- 벤치마크: AutoEQ, FiiO Control Auto EQ
-- Easy/Pro 구조·Raw 그래프: 개발 목업(Patrick) 참고`,
+- 벤치마크: AutoEQ, FiiO Control Auto EQ (하단 참고 링크)
+- Easy/Pro 구조·Raw 그래프: 개발 목업(Patrick) 참고 (하단 첨부 파일)`,
    tags:["AuralTune","Aural Tune","오럴튠","AutoEQ","EQ","이퀄라이저","보정","헤드폰","타깃","파라메트릭","설정","PD30"],
-   links:[{label:"AutoEQ",url:"https://autoeq.app/"},{label:"FiiO Control Auto EQ",url:"https://fiiocontrol.fiio.com/equalizer/auto-eq"},{label:"용어사전 — EQ",url:"#search:EQ"}]},
+   files:[
+     {label:"AuralTune_mockup.html",url:"files/AuralTune_mockup.html"}
+   ],
+   links:[{label:"AutoEQ",url:"https://autoeq.app/"},{label:"FiiO Control Auto EQ",url:"https://fiiocontrol.fiio.com/equalizer/auto-eq"},{label:"개발 목업(Patrick)",url:"files/AuralTune_mockup.html"},{label:"용어사전 — EQ",url:"#search:EQ"}]},
   {id:212,title:"화면 잠금 - EU 사이버 보안 규제 대응",credits:{PL:"Kane",UX:"Ellie"},category:"기능 히스토리",labels:["결정"],models:["PD30"],state:"미정",date:"2026.10.02",author:"Ellie",authorInitial:"E",
    desc:"EU 사이버 보안 규제 대응을 위한 화면 잠금(Screen Lock) 신규 정의. 패턴·PIN 2종 지원, 잠금 없음 선택 불가, 최초 설정(Provision) 시 Skip 없이 필수 설정. PD30 탑재 예정.",
    body:`■■ 결론
@@ -671,17 +674,40 @@ EU 사이버 보안 규제 대응을 위해 화면 잠금 기능이 추가되었
 | 시계 스타일 | 변경 즉시 반영 (저장 버튼 없음), 기본값 기본 |
 
 
-■■ 안내 문구 (예시)
+■■ 안내 문구
+
+패턴 · [설정>시스템>잠금 방식]
 
 | 상태 | 메인 | 서브 |
 | --- | --- | --- |
-| 패턴 설정 시작 | 잠금 해제 패턴을 그리세요. | 점 4개 이상을 연결하세요. |
-| PIN 설정 시작 | PIN을 입력하세요. | 숫자 4자리 이상 입력하세요. |
-| 본인 확인 | 현재 패턴을 그리세요. / 현재 PIN을 입력하세요. | 본인 확인 후 잠금 방식을 변경할 수 있습니다. |
+| 해제 | 현재 패턴을 그리세요. | 본인 확인 후 잠금 방식을 변경할 수 있습니다. |
+| 설정 시작 | 잠금 해제 패턴을 그리세요. | 점 4개 이상을 연결하세요. |
+| 그리는 중 | 패턴을 다 그린 후 손가락을 떼세요. | 점 4개 이상을 연결하세요. |
+| 오류 (4개 미만) | 점이 부족합니다. | 점 4개 이상을 연결하세요. |
 | 재확인 | 같은 패턴을 한 번 더 그리세요. | 입력한 패턴을 확인합니다. |
+| 오류 (확인 불일치) | 패턴이 일치하지 않습니다. | 처음부터 다시 그리세요. |
 | 실패 | 패턴이 일치하지 않습니다. | 4회 더 틀리면 입력이 제한됩니다. |
 | 입력 제한 | 입력이 일시적으로 제한되었습니다. | 30초 후 다시 시도하세요. |
 | 완료 | 패턴이 설정되었습니다. | 기기 잠금 해제에 사용됩니다. |
+
+PIN · [설정>시스템>잠금 방식]
+
+| 상태 | 메인 | 서브 |
+| --- | --- | --- |
+| 해제 | 현재 PIN을 입력하세요. | 본인 확인 후 잠금 방식을 변경할 수 있습니다. |
+| 설정 시작 · 입력 중 (4자리 미만) | PIN을 입력하세요. | 숫자 4자리 이상 입력하세요. |
+| 입력 중 (4자리 이상) | PIN을 입력하세요. | 입력을 마치면 [다음]을 누르세요. |
+| 재확인 | 같은 PIN을 한 번 더 입력하세요. | 입력한 PIN을 확인합니다. |
+| 오류 (확인 불일치) | PIN이 일치하지 않습니다. | 처음부터 다시 입력하세요. |
+| 실패 | PIN이 일치하지 않습니다. | 4회 더 틀리면 입력이 제한됩니다. |
+| 입력 제한 | 입력이 일시적으로 제한되었습니다. | 30초 후 다시 시도하세요. |
+| 완료 | PIN이 설정되었습니다. | 기기 잠금 해제에 사용됩니다. |
+
+잠금 화면 · [잠금 화면]
+
+| 항목 | 문구 |
+| --- | --- |
+| 해제 안내 | 위로 밀어 잠금을 해제하세요. |
 
 
 ■■ 미정 사항

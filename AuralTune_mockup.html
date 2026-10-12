@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aural Tune 개발 목업 (Patrick)</title>
+</head>
+<body style="margin:0;background:#0b0b0d;">
+<div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:24px;background:var(--surface-1,#0b0b0d);">
+  <div style="width:380px;">
+    <div style="font-size:11px;color:#8a8a90;margin-bottom:6px;">상태바 드래그 → 퀵세팅 (탭: On/Off · 길게 누르기: 설정 열기)</div>
+    <div id="qsTile" onmousedown="qsPointerDown()" onmouseup="qsPointerUp()" ontouchstart="qsPointerDown()" ontouchend="qsPointerUp()" style="display:flex;align-items:center;gap:10px;background:#1f1f22;border:1px solid #303034;border-radius:14px;padding:12px 14px;cursor:pointer;user-select:none;">
+      <div id="qsTileIcon" style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2a2a2e;flex-shrink:0;">
+        <span id="qsIcon" style="font-size:12px;color:#8a8a90;font-weight:700;letter-spacing:.02em;">AT</span>
+      </div>
+      <div>
+        <div id="qsLabel" style="font-size:13px;color:#e8e8ea;font-weight:600;">AuralTune 꺼짐</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="width:380px;position:relative;">
+    <div id="screenHome" style="position:relative;width:380px;border-radius:20px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.5);">
+      <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAkGBwgHBgkICAgKCgkLDhcPDg0NDhwUFREXIh4jIyEeICAlKjUtJScyKCAgLj8vMjc5PDw8JC1CRkE6RjU7PDn/2wBDAQoKCg4MDhsPDxs5JiAmOTk5OTk5OTk5OTk5OTk5OTk5OTk5OTk5OTk5OTk5OTk5OTk5OTk5OTk5OTk5OTk5OTn/wAARCAL4AXwDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDyw2tv/wA8U/KrA0SU6a2pDT2Nij+W1xt+QN6Z9eRUZrvIf+SH33/YVH8koA4e/wBEm04wi909rfz0EkXmLjevqPaoIrGKaRY47dWdjgADrXoHxb+/4Z/7BMdct4cignvmjneYqyhRbW6kzXbEgCJDj5c9z2GetAGPLYxwyNHJbqrqcEEdKZ9mg/54p+Vb+siCz1eDyI2uFj4NjdofMgYEgwyYxuwehB5GOldtb6NpM2oy2w0G0nvLN7K1u4YfM2K0znzmADZGwbVznAOTQB5T9mg/55J+VJ9mg/55J+VXtSiit9Ru4IX3wxTuiNnOVDEA/kKq0ARfZ4P+eS/lSfZ4f+eS/lUtIaAIjbw/881/KkMEP/PNalpDQBCYIv8AnmtNMMf/ADzWpjTSKAIDFH/cFNMSf3RU5FNIoAgMa/3RTfLX+6KnK0baAIPLX+6KPLX+6Kn20baAIfLX+6KXyl/uipttLtoAg8pf7oo8pf7oqfbRtoAh8pP7opfKT+6Km20YoAi8pP7oq7pei3WrSvFY2omeNdzDeq4H/AiKgxVvSLW2vNXsLW8kEVtNcRxyydNqlgCc9uKALv8AwhOu/wDQLH/f+L/4qsW6s2tLiS3niCTRMVdcg4I9xxXbT2X9oWuu2txpmmaWdOV3SI6e6vEqHj98OpP3fnJyT9K4cjAx0oAiMaf3RQts7xmRIHaMdXVCVH41asbpbO8juGtbe62ZIiuAWjJxwSARnB5x0OOa9CtpdSurb7ZDrPiu6jQH/SdNgEdquOojiJUuq98AdOlAHl2F7AVJbWst3OlvbQSTzOcLHGpZm+gFanibUVv7wfNZ3Lx5BvreEwm5BwQXTgbhyM4B9SetSeCWK+IUKkgi2usEHH/LvJQAa34N8Q6Bbrcapo9xbQN/y0IDKOnUqTjqOtYgCdwK7i6tLGy0G/Sx1J7wzaLDLcBgw2SG4jPOT+XHTB70ngT7NJZQwW7aV/aEupIlyl+qEy2xAAVNwOfm3ZC/NyuKAOLCx5wQKeqRk/dWvUtJ03SrcxWCx2Yjub6+iS2mhEkuoopKxhJCD5eCNoJK8881kaUmn6z4fQDTxmxRRiVUhTzVjYPmXILKSRI2cbdoA+8KAOIEUX9xacIYv+ea1JdW09jdS2lyhSeFijqTnBH0poNAB5MI6xrS+RBnHlrmuo8BXbpf3doEgMc9ldM7NErP8sDkAMRlRnnijwzdyN4a8RWZSDyksPNDeUu8t5sY5fGcYzxnHNAHMfZ4f+eS/lS+RB/zzX8q6nw/ci30bXL6xiNrfWljEFnVyz/NMA8i5+78pC8dPxrqpJ4rD7XqFxdTaa9x/ZpmurWAPKZWi3uhXjCt94+pxwaAPLPs8P8AzzX8qPs8P/PJfyrrJ9GOo/ES60qWKG0ja+kMyxt+7hiBLOQeMAKD6V1aI0njDQ/ESR2RaQXMUsdtKksavFG5jBKkjmPZ/wB8mgDyj7PD/wA8l/KlFvD/AM8l/KvUdB0yz0u91C/jjVoNYtphpobnbCYGlkP1U7Y/zrzGP7i/SgCY1oDW79dAk0ISr/Z0k3ntHsGS/HO7r2FZpNGaANLWtc1DWzaG/lWQ2kIgi2oFwg6DjrUFhqNzp/2g2riN54jE0gX51U9Qp/hyOCR2yKp5ozQBcvtSu78273Mm+W3jEaS4w5Ufd3N1JHQE84AqCO6uIpHljuJkkcEO6yEMwPXJHXNQ5ozQAUUUUAJRS0UANpMU/FJigBhFIRUmKQigCIik21IRSYoAj20bakxS7aAI9tLtqQLS7aAIttG2pcUYoAi20bakxSYoAZijFOxSUAJirWnTWMEjm/09r2MrhUW4MO0+uQDn6VVNNJoA6a68T2F1aJaXOlahNbR42wyazKyLjpgFccVzF08T3EjwQmGFmJSMvvKD03Hr9aaxqNjQA1qelz5cTLtYyDHlSeYwMXOTtAOOaiJphNADTVvR9Sl0nUY72GOKV0V12SglGDKVIIBB6Me9UzSUAbc/iLfYXdnb6Rptot0ixyyQLJvKhlYAFnI6qO1U9K1e+0l5XsJhBLIu0yBFLqP9liMqeeowaz80oNAG3p3ibV9Ns1tbW6CRoWMRaJGeEtwxjYglM98EVX0/Vb2wZPImOxA6iJwHjIcAOCp4IIAz9BWcDTgaALt1dz3t1LdXMhknmYu7nuTTFNQA1IpoAuWt1PayGW3meKQqyFkODtYYYfQgkU6C5mgjmjhleNJk8uVVOA65BwfUZAP4VUU1IDQBpWusalazQTW99PHJBF5MTK33Y8k7fpknipbbXtXtbue7g1O6S4uDmaQSHMh7E56kdvSsoGng0AWI7y5jkmlS4lWSdWSVwx3OrfeBPfPepLTUb2yQpaXc0CFt5WNsDdtK5+u1mH0JqoKWgC1HqN9EIBHeTqLeN4oQHP7tGzuVfQHJz9arrwKbThQApNJmkzSZoAdmim0tAC0UlLQAUYopcUAFGKXFLQAmKMUtFADcUhpxppoAaRSYpTRQAYpQKSlFAC4pcUgpaAEoNFIaAENNNKTTSaAAmkJpCaaTQApNMJoJpjGgAJqNjQTTCaAEJphNKTTTQAhpKDQaADNFJRQA4GnA0ylFAEgNPU1EDTgaAJ1NPBqBTUgNAE4NPBqEGtCGOxSzuTdyXS3wO2G3SMBQf7zse3baBn3FAFcGlrSsJtBe2jgv7W+gm5Bu7eYOOvUxMBkDjowqPV9Ll0uaINLHcW06eZb3MWdkyZxkZ5BB4IPINAFKlFNpQaAEzRmm0ooA3dKtrbW7FdMjjjg1eIk2rjgXYPJib/b/ALp7/d9KpaTpdxqd61shWARgvcSzZCW6L95n9MdMdSeOtURwQQSCOQR2ra1TxHe6nZC2lSGMyMHu5o1w9468K0h7kD8zknmgCtrNxYzXCRabb+VZ26eWjuP3s3OTI/uT27DAqjigUooAMUtFLQAUUUmaAFppNBNNJoAUmmE0E00mgBc0maTNFADs0oNNFKKAHClpBS0AIaQmlNNNADTTSacaYaAEJphNONMNACE0wmlNMNACE0w04000ANNIaU0YoAbSU7FGKAG0YpcUYoASilxRQAU4Gm0ooAeDUgNQg08GgDS0VLmXVLUWdulxcI/mJE4BV9nzYIJGRhTxS+Zd6xqRf95c3t7NnjlpHY/1JqLR9Rl0rVbTUIVDSW0qyBT0bHVT7EZH41tXtpLod/beINEYzaYJhNa3G3cImBz5Uo/hYdCD1HI4NAGy9q/h/wAFyx39rp1+lzqJj/dzrJ5ZER+66H5WU447+4NZNkxufBupQyHcLG5hnhJ/hMmUcD64U/8AAarXeqnWIYNK0vSYrWIzmYW1qXlaWUjbnkk4A4AHSrerKmi6OND8xJL+aZbi/wBjBliKgiOHI4JG5mbHQkDsaAMQU4VGDTh0oASlFIKeBQACnAUAU4CgAApaKWgApKM0hNAC5ppNITTSaAFJppNITTSaAFJpKKKAClFAFOAoAQCngUoWnhaAGgUYqQLS7aAIiKaRU+2mlaAICKYRVgrTCtAEBFMIqcrTStAFcimEVOVppWgCAimkVMVppWgCLFJipdtJtoAjxRtqTbRtoAixRipNtJtoAjxSYqQrSEUAR0tKRSYoAKUGkoFAEgNXtL1W/wBKmabT7ya2dhhjG2Aw9GHQj61ng04GgDoZvFuuzwvCdReKNxhxbxpDuHuUAJrIU4FQqaepoAnBp6nioQakU8UASAU8CmgVIBQAAU6gCloASkNKaaTQAE0wmgmmE0ABNNJpCaaTQA7NFNpwFACinAUKKkVaAEC09Vp6pUipQAxVp4WpFSnhKAIglLsqYLS7aAINlIUqxtpCtAFYpTSlWStNKUAVSlMKVaKUwpQBUKUwpVspTClAFUpTStWSlNKUAVitJtqwVppWgCDbRtqYrSbaAIdtIVqbbSFaAICtNIqcimEUAQkU0ipSKaRQBHikp5FNxQAUoNJSigB4NSKahBp4NAEwNSA8VCpqRTxQBcFPFNFOFADqQ0UhNACE0wmlJqNjQAMajJrRttPS4gWQyspbsBUw0aM/8vD/APfIoAxiaK2xoUZ/5eX/AO+RThoMX/Py/wD3yKAMQVIorZGhRD/l5f8A75FPGiRD/l4f/vkUAZCrUqrWqNIjH/LZv++RTxpkY/5at+VAGaqVIqVfFgg/5aN+VL9kUfxn8qAKYWnhas+Qo/iP5UgiX1NAEIWjbTmIU1XnvY4s8ZIoAm20hWsybWigJWAEdsmoP7fkJ/49k/76NAGyVphWsxdZnZgotU3HoNxqSTUpY0y0C7vTJ4oAulaYVqhHqs0jhVtkBPqxq/GZ5IzJ5IEY/iz1oAYVphWmXN2YWYGPp271SbVmH/LFP++qALpWmlarx6iJGH7sY7gHmtOCKK4QNHISO4xyKAKJWmla0/sS/wB8/lSfYV/56H8qAMwrTStan9nr/wA9D+VJ/Zy/89G/KgDLIppFah05f+ejflR/ZiH/AJat+VAGQRTCK2f7KQ/8tm/75pp0lP8Ans3/AHyKAMUimkVt/wBjJ/z3f/vkUh0WP/nu/wD3yKAMIimkVvf2HH/z8P8A98isrULYWtyYgxYAA5Ix1oAq0lOIpKAAU4GmU4UASA1IDxUINSA8UAaIpwpgp2aAHE00mgmmE0AIxpjGlY1GTQBuaaf9Dj/H+dWw1UNOb/RI/wAf51aDUwLKtTw1Vg1PDUAWA1LuqANShqAJg1KWqENSbsUASlqbuBPNMz6mopZ1i5c4B6UATM3HWoZZNqlucdqrzXhZR5UMrZ6ELxTbaO+uJCPKkAPU7TigBsm8xlgck8H2psGjz3G5tpKkkbq6Gx04R5S4AOBnA71pTajY6fbxjcuc/doA4PU9FmgKR4yTyKuWPheQCNpB87/MQf4R61fvNZtrjWIccpt5+ua6H7fFf3cNrbYCAHzZPQUAYOmeGwjm5fDZbanv6mq2o6KxLEcLmuh1PXLWzYwQ4bYu1cetc9NrbTTbFGAh4x3NAEml6HHJL5ZXLHClvT1rU1i9tba1EEG0LEcFj6dzWXJq/wBnjCxEmR1KlvT1xXMatfvPiMMdo6570ARX12Ll3Ma4jzxk1nnrTuSvtTTSAUEjkcVesr9opVJ/HHeqA64oPBoA7W3mWeMOpHNS1yumX7WzAEkp3HpXTxSLLGHU5B5FMB/ailxSGgBKUUUUAFFGKMUAFFFFABXOa3/yEH/3V/lXR1zmuf8AIQf/AHV/lQBnmmmnGm0gEpRSGigB4NPB4qIU8UAadLmm0ZoAUmmE0E0wmgAJppoJpKANaxOLVPx/nVkNVSyOLZPx/nVgGgCZWp4PvUANPBoAmBpwNQhqSSZIlJZgPrTAsZqN7yCA/vPmP90d6yLvVeNsZAHr3qrA91O+YkbHdiP60gNE6heyOWit1RM/xDNW4BdzsAohUn9P0pdOgCc3M8h54WPjNb9slgU2yPdew3Dj9aYC6dY6ko3G2jkwOqSDJ/A8VcOp/Y3X7VZTwn+8U4/Sqhsnt2Mthe3JDdEOCKz9V1m7hzFOXHH3kGPzB60Aad1q9lIhcBJI+7IcEfiK5vVBHOCYJg4PSOQfN+dY11cCZy8bc92UY/MURiSfaMc+oPWkBEIpUlzjaQc81s6eLm1jYEEBs8jvTrKxmkwGRiPQiur0uwLwmORNwxxnqKYHETQyvvfnd1H1qusbRITJ8pJ69/evRp/D4dMoAKyb3w1JKcFcgelIDg7qZg5IY8AgVQIY84Ndvc+E2C5bI/CsW80OW2b5UOBQBh44ABppUjtWqLMhN7R45wWHb8KtxaPLcR7o41kAP8JwaAOeorauNEkQEgMCOzCsuW2kjO1kOaAIgRWjpOotayhXOYj19qoFeM/p3pvSgDulYOoZSCp6UVgaFf7CLeU/K33D6H0rf7ZpgFFFFABRRRQAlLRRQAVzeuf8hF/91f5V0mK5vXP+Qi/+6v8AKgDPNNNLSGkAhooNJQAopwNMp1AGoaaTSmmE0ABNNJoJptAC0CgU5RQBo2v/AB7rUwqC34hWpgaAJAaeDUQNDPsUk0APll8pC2CT2FZkkLznfcSiNc9Car3188jhIyeOaqANI2XYsfzoAuxNbxvtSMuc/eNben2TXJ+QAZ6knNYsM8UGAE3N6VbS9uJiF3EL/cj6UAdxp+mWMbASyh37IrcVoXcFtHEfIt7fgdWXcc1yulzXVvtdfs8Q9XJY/pWreatdrbkyTRjI67MUwMbVL+6hZgvklfQIBWLcavPKNknK4xg/MKXUrxpXO2RmPsmKoRl3YbhkH1FICaC3E0vAI3dxXoHhnQYnRWlUE+4rI8N6QLh1ZV4r03SbVYYgoABFMCCHR4EAygqylnFH91QKvMoAqMjrmgCuyBRwKrTKME45q69VnGeDQIzpowc5FZ09rCxOUFas/BqoydzxQM5y+0qFclRj6VnxWX2STzYmKL3C9DXWTxK6nK1iXCmIlsHFAFZjHPExeRlOOsYBH681hX9g+wlLoMT/AHlxVrUJ2jBMZx3xWemsSAncQVHbrmgDFuYZI8lnDfQGqLDn0rqXurS5+/ajPqD1rLvLWzcsYJGU/wB1hSAy1JUgg9Oa63SbsXdorH76/K1cnIhQlT2rS8Pz+Xd+WTxIMfjQB01FLijFMBKWjBooAKKKKACuZ13/AJCT/wC6v8q6auY17/kJv/ur/KgDPNJQaSkAUlFFABS02loA1TTDTjTDQAhpKWgUAKBUiikUVKgoAsw/6sVIDTE4UU4UAPBqO6GYG9cU8UONyYxQBzoBLEHpUylcBeSf7q/40+8hRLjahJUdvWpLYDdhQAfrj9aAJIrI43Myxg9ABkmt/SNF3sryLM4PdjtFRaPZXVzJiBApP8R6n8a606V5FsGurvaxGQAck0AKLmx0yIKwtt+OgOT+lc3qviNXkKpChGe4P9aNXs1QYiVgCcgu+K5m4gO8qZfl92oAnmvRM+cRj22Vp6LZPezLthG3PJI61n6TpX22dURCxJ5JzXrfh3QY7K3UFecDr2pgS6HpS28akKBmuiijCDgUkUQRQMVLQIawqJl5I7VPUbjrQBXcYFQSLVl/eq7ZNAFKZc5qu0ec1oGPPWopI8UAZ0icVl3kIKmtudOw6VQuFRU+YgZoGcLq9u/JU9K5adnjkLdRnmvQtSFqysN/P0ri9Qt8SMRjbSAjtHiuBtBxnhlaqN2GhmZCTx0PemMGgk3KeKsSlLqHduxKg/MUAVGbPB5ohkaKRXU4ZTkfWmE0lAHaWF4t5AHXAb+Iehqzg1xunXj2c4cfcP3hXXQTLLGHXoRQBJRQDRTAKKMUUAFcvr//ACE3/wB1f5V1Nctr/wDyE3/3V/lQBnUlFFIBKSlpKACiiigDUNNNKaSgBKcBSCnqKAHoKmRaYgqdBQA4U4UYJbABJPpXb+HPCkUdm17q0Ryw/dxk4wPU0AcUKX0rftPDU+r6jcCwVUtEfBdjwvtXT2fhDStN/e3kpuXHQNwufpQB5RqEREg2qQGGc4qO2aKB8uC79lHNdZ8Qru0keFY0WPaMAIOori0kk34i/d59OpoA6zTtSnjBaSRLZMdP4jVh/EYaQRWFq95N/ecfKKwdLgGAsz5yfuryzV1Wn6cDEVldbW1/uRj52+ppgYN9HqN6zSXlwqA/8s4h/Ws9bARt83y5OADyzGuj1u+t4/3Nl5UaKOWPJFYmlZu9RCQhnyfmkPXH9KAO68EaOq7ZGXGK9CRAqgVieHLYQWy/StwEEUCFFLScUUAB6VGzcGpe1QvwaAIZKaq5qQ4o4oAYyDFVLhgoOatTSADNYeqXqxo2T0oAqajqCRbiWAUDJPpXC6z4kaSUiNjjPAqn4q1x5p2ghbCd8d65pHO/cTk0hm5PeM0ZeWQg+maxprlnckMcdqSQTSgttYge1VyD0oAsI3mja1NZGiyD0NPsoi8yityXTTJAcr9DQBzRoqW5gaCQowPFRUAKK2NEvzDIIZSdjfdPpWNUkb9BnoaAO4HI4p3WsvSbsyL5MjZZR8reorSU9aYDqKBRQAVy3iD/AJCj/wC6v8q6muX1/wD5Cb/7q/yoAzKKdSYpANpDTsUmKAG0UtJQBpmikoFADhUiimLUqUASoKnQVCgqwgoA7r4daDFcM+p3MYYI22EMOM9zVvx7rD2qi2jyZJOABW54G/5FSx+j/wDoRrH154YtetZ7iNXVd20sPunHWmIz7G4l8LeH389/9LuD5jL/AHfQVyepeMLq7Jy34VH4u1o390wVsqOK5hmA570h2Ld3dy3nLtyDgUyGPcpxlEHVsVFbKzsG2nHr61M/m3BEECZC+hoAtR3q2qgQkR/7THLGmya1IeA7yntuOF/Kp7DQnlDMx3EdQvzH6U24054GIW3Kg8Bn6/lQBTZrm6+eYgKOigY/Sum8MRkXSRJjA5b1Nc5cfuNu47mIwAOgrrvBEG9/NbJOeaAPTbBfLhUe1XVfiqluf3SipRmmIn3mng5FVwTmplNADwKZIAafuwOagmlAFADGOOD0qKSXHSoZp/Q1UlnG3rQAt5c4BOa4LxdqTRRkKx59DXUX0xKnmvOfFbsXx2oA5mVy7sx6k1ueGNI/tCcNIPkBwPc1g4y2PevUfCFvDY6ULiYqny5LN/CKQyZtBt44CDGF46AVxPiawtrIgrhXbovet7XvGyfNBpideDPJ/QVxNxcmWV5ZXM0rHlmoA2fDVrG+HcjcThR3NdsdN2xY21wHhm++zakjsgbsPb6V6tb3MdxbAhcZFAHnXiXTMBnC4Irk8YODXqXiOJGhYYrzS8Ty7hgPWgCHafSlUdM09BvwF6+lNIIbB7UAaFuzrtKH5k+Ye47iujtZ1uIVkXrjmuXtpMxnHDIcitTTJhFMUH3GG4fTuKANzNFIOlL3pgFcxrw/4mb/AO6v8q6eua10Z1J/91f5UAZuKMU/FGKQEZFNIqUimkUARkU2nkUmKALuaUUwGnigCRamSoUqZKAJ0qdKgSp0oA9f8Csp8L2S55AbP/fRp+taMl7IkuSGTOPSsT4d6lG9m9k3EkPT3UnNdoSrjHBpiPAPFuj3Gl6gxlXEbn5WHQ1k2NoLh2Z2widRXvev6Db6tavDKgYEcHuK8u1nwFq+nCR7N1niYfdBw2KQznZpQzusKkjG0c4ArW0pYLVQ0p3ekSDk+5NYESyQTlJo2V16qwwRWtpsxhYFEEtweck/Kv1oA7zTrXVLqzMkSw2UBHHZj7muO12aCyleITG7uM5Mh6A+wrqtJle5AWe9E396OE5x7ZrH1LT45J5RDZ+Ug+9LMf8AOaYHIxRSzv5spOCcDPeu/wDBy7BjPIOK5aOIrIWB3N0B9K6nw5mAKGxnr70Ad9CcAc1Y3A1RtZVkiAHUCplegRZz6U4SVCpyKWZlRMsQMUAEs5Ucmsy8vwoJZgAPU1ka/wCJIrFSEG9q881XxJd30jYO1D2oGd9PrcZchZQfxpg1NZON1eXJcyq+/ec1o2eqyRyAuSRQB6SiCZQeua5/xHoTXETOicgcVs+Gb2O7QfMCfSuqeySeLGBzQB8+21nIb4QFTkHmrd5qWo3yi2XcIAcBBwDiu/1vw2tpfi7iXAJ+akOgxXKoVChQc8CkB5a6N/FnI4xSw28krhVUk16c/hK3Zt3l1Ys/DUMbhliAxQByPh/QJhIssi8V39rAY4gPar9tpyQqAFwKS6XYhApgcxrfKPx0rzfUx/pDe5r0bWshHya851PPnmkBUBx0qQSBhhgPrUVFAFi3cqx+lW7dyYgR96M7h7juKpQDLH2BqazkwduOe1AHU2cwkiXnjoDVk1i6TJskMRPynpWwDg7T+BpgOrnNbH/Exf8A3V/lXR1z2sj/AImD/wC6v8qAM/FLtp4FLikBERTCKmIpjCgCEimYqVhTMUATinrUYp60ATJUyVClTpQBOlTrUCVMtAFzTdQm029W4hOCvUeor07RdcjvoUkXjdXkrfeNbXhjUvsd35Mh/dSnH+63Y0AewROHUU2eFZF5FZ2nXYKgNwa1VYMMimI8+8aeE11CNp7dALpRwf73sa8teKWC4Ntco8ZX7yHjmvo+WESCuQ8VeFbbVoiWQLMvKSAc0Ach4dvYLJUdjHFH6txXR3d/pGqQEtMr4HJU5rzDWLC9sL0294p3A/Kf4SK6PQrizisTBMxJfALAY57AUDG3lzp9sx8sn245ptvrCJKNmQW7nqapXujTLK7BSQ2SCDnj1rLKCN+Gwc9M5oA9X0PUfNUZb6VvI+a8s0fVjbqkZOPTNd9YXwngVs9qAN1JAoJJ4AzWBrGoyMrbcgdgO9X57jFvjP3uKw9QZIIWd+T1GaAON1aOWZzJO2F9KxorKW9m8u3Qn3Aq3e3Muo3/AJKHjNekeFtFgsrRW8sbiMliKAOCj8JXCDMpwfSrkHh3GF6/hXoGpzWlnbvPcFEjXqzcV55rfjHzf3Olx7AT/rWHP4CgDqNG0JrJVkDAHPTNdlYSlUCvXLeDrbNpExmeaR/nkkY9T/hXUumBxxQBNfWqXMLAjORXIzRzafOQQSnauxtZNyYNVdTtVlQ/LQI5+C+V3AyK1IHVumK5+909Y8yBzGR3qXSr0YCtKrdsigZ0TMAKzrv5s1YMmVyDmqV1JwSCaBHN64F2tntXnWqj9+TXoesAsj+9cFq0WJWIFIZlUUGkNAEiNtBA706DO/A69RUXanIcEEdaANK0lYS7lPI5rplbeoPtkVyuAHikGQHGPxrpLNt8IHQg0AWQcgVgax/yEH/3V/lW6h656isPV/8Aj/b/AHV/lTAqAUuKUClxSAYRTGFSkUxhQBAwpmKlYVHigBwp600U9aAJUqdKgSp0oAnSplqFKlWgBW60qMUdWHY5FI3WkoA9O0q6W4t4ZVb5ZAD9D6V1Fq2UA9K8n8Mat9jn+zyn9xKcZP8ACa9C029y+0nmgDeqKdN605JAy5zSjmmI5fxJoNtqlu0U0YJHQ45BryvVdGu9JuyHH7stlZT0r3W5jDCsHVdNhvYniljV1I6GgDgbXWLaLTPKklVjJ94Driub1oJaSjyMNvGQ1XfEeiS6LcEoCbRjwR/DWPIWktS+CyhtoNIZVW4kDA7iSOa7vwfrKzAW8hw4/WuARcnr3qzaXMljcpNGeRjj1oA9kuWIiB5wOa5XxPfPJH5aZz0roNCvI9V06OVSCSMEelNvtDWV9wXkGmBw/hq1C36vN0BzzXdax4usdFhEaYuLrHyxKeB9TWJqGgy+U+1liQcljxiuRn0m8EbyxQSGInHmuDz9KQCa/wCIb3V5/MuZPpGv3VrMtMmcE9c8UgtJt+CjZ+ldT4b8NzTyrLNGQo6CgDt/BEckcSnkKR0rr5SNtUtGsBaW6jHarF221TimIfA2BU08i+Xk8VnzXS2tv5hHbNclqfi1WRwvy46AmgCDx9qfk2LRRN87eledQazdwH5JSDnPWpda1Ca/nZnYkdqx+9IZ6z4c8Sx6jAFlIEijBFbzlZEypzXjOhTywX6NGTgnmvV9On3Qgk5yKYFHUYsg8VxetQ4YgV3mospU81x2rIpBI7UAclImDUdXLlME1UakA2nLTaKAL5bfaZz0ORXQadLvgQ+mBXM27kJjGRmt3R5d0ewd1/WgDWA6kViat/x/N/uj+VbSHC/0rF1T/j+b/dH8qYFYU7FIKdSAaaYwqQ0xqAIWqM1K1R0AKKetNpy0ASpUyVCtTLQBMtTLUK1ItADj1pRRRigBR1rsPD+pmaFUZv3sf6iuPFT2s720yyoeRQB67p94JYxzz3rSRxxXF6RfCSJJo2+VvvD0NdVZSiRQc0xFl+R0qq0RbnGKvbcijYAKAOW1zTY7q3dHQMCOhryTW9NfTDJCCfJZ9yexr3PUFGw15x4utVkDZxQB55D80iqOx5H86fcr98joCCPpUcitBMy9GGRUiOJoDG33kU7fp6UhnT/D3VPst6bWRv3cvTPrXrNvtcc85r59tLhreZJBnKnIxXs3hnVlvrOOTPOAD9aYHSfY4JMb41YjpkVBqOnpNAU2DH0qzFKDirHmKRQI5RPDcHm7zGM/St6ysIoAAFHFWmdBTGmGOOKAJWIUcdKo3rgoRmpHmPrxVG4cs2M0AY3iO+NvpZ4OenFeQ3InnvTu3bmPAr3VbSK6iaORAynjBrmpPBEaaoLkOTHnIX0oGeeXmk3kFusjxnBFU4tKu5ThImP4V7bcaGl3b+WQoC+tVJrfT9EsnlfY0gGAO5oA850fRpoZA8sZFdXDK0EYycYrltW1y5Ls4l2huir2FYT6he3DbRLIxPYHNAHbX+qpgrvGe9Y08qzpgHNULHR7mVxJeO0cY5IJ5NbJsoUQiI4XtSA5+/QDtWU3Wt/UoWCcVguMNQAylpKKAHBiO9WbO6aB8hiPpVXNFAHUWOoxzPhjyag1LBvGI6YH8q54EjoSK07IloAWJJyeTQBOBS0oFFADTTGqQ1G1AELVGetSNUZ60APpwpKUUASLUq1CtSqaAJlNSqagU1KpoAlFLSL0pRQA4UtNp1AGtoGofY7oJIf3MnDe3vXomlvhtmf90+1eTCu88IXxurZQxzJCdp9x2pgd5H90UP04pkDbkBqQ0CMu+B2MT6V5p4llLXLJjAHvXpGrPtib6V5VrBMl83XqaBnMatFl947VmqSOlbepD92wrDzikBIV+XOea6nwdrX2F1ikP7tzgN6GuXDAxHOM5qazBLtH+IFAHuNnfLIgIarn2n3rzDw/rsiII5G3MvB9xXXWmpLMowaYG690c/e4ponOc5zWX5wznOKBNj+LrQBpPcc8mot+89aoibLYOeasR8t3xQBq2bAH2FWXYGqNuwRaZd38dvGzuwAUZoEZXizW1swLdJth/iINecavqpuCy+YxHuetW9Q+1eIdXdLZd5LcHso9TXYeH/BWm2MQnv8A9/N1y3TNAHn2jeHtQ1yUbUZIM8uwrtLXw/ZaPHlFV5BwWYVvalqdvZx+VbosSD+6MVwviDxLw0cTZY+9Ayt4j1DyWMcbcsccVHplw0y/Nk44rnJJZLuYFiWYmuu0jTZFt1JXFAFXUlPknA4rlpv9Ya67WY/KjYE1yEhy5+tIBlFFFABRRRQAtamnj/Rl+prKrX04f6Iv1NAFjFBp2KQ0ARmo2qRqjagCFqjNSPUdAElApKM0ASA09TUQNPBoAnU1IpqupqVTQBaQ/KKdTI/uCn0AKKUUg60tADs10vgIudY8pclWXmuZr0D4Z2SiK4vWA3k+Wp9B3oA7iNdq4pxopH6UxGRqvMbCvNNZCpenIGM16bqX+rb6V5f4kG26JzjmgZzutlRu29KwK19UYlTn0rIpAKKlEhWUOp5FQ0tAF4O0TK6nGRkV0Ok6j5uCjlXHUGuZgBlgdepT5se1NjkeMh42wy/qKAPS4L7KgODuqwk4cjBri9M1xZNsU52t0DV0dtLkDDflTA3oDk9avQkA1jW8oHQ1fimyox3oA0vNHrXOa1bXWqy/ZYHKAn5m9q2Oq5Jp1oBHKWOKAKVjbWuiW/l26hHx87N1Y+tUdW8TxwoVMuSB0BrR1e2jvFYEZJ71zL+DRdSZDsM0AcxrOvTXshCEhar6Tod9q8mYkbaTy5r0LTfh5aq4edi4HauvtdOtdPhCRIqqB2oA4rRPBMNpiS4O+QflW5PbxQRkAAYq9qGoQwDBYCuX1fW41RsOKAOZ8U3SjKjqTXJHrV3Vbs3dwzds9Ko0gCiiigApaSigArZ03/j0X6msatrTP+PNfqaALBppp5phoAY1RNUjVE1AETVHUjVHQA4mjNJSUAPBpQajzSg0ATqakVqrg1IpoA0YOYlqQCo7bmBTUwFADQKdilxS4oAQDivT/h6u3Qwf7zk15iK9Y8ExeXoNsMdQW/M0IGdCKa3SnCmt0NMRl6j9xq818VQnzdw9a9LvxlTXBeJ0+UmgZ57qXRh6Vl1qaj/FWXSAUYopKWgCSGRoZA6nnp+FOkTaQR0PKn+lQ9qeGJTZ6cigBCpHOK0tM1iW1ISQlo/5VRDsRxzxyPWmFQRlelAHfWGqRTICGB/GtWG8UAcgmvLYZpIW3RsQa1rTXJEGH/OgD0Vb8Y6/QVPBdhm61w0Wro2Dnn61ettVQEfPz9aAO3RldhmtG3ZVxjAriY9biQZaQfnVgeKLRB/rR+dMDuvtIVe1Y+r6kscTNu5+tctP4vtgvElc5q/iT7SCqE4oEQeI9Znmu2VJDtHpWJLdSSDDMTUU0m9y2c5qOkMCcmkoooAKKKKACiiigArZ0z/jzX6msatjTT/oi/U0AWjTTSk000AMaomqRqjagCJqjqRqjoADSUUhoAM0uabmkzQBIDT1aoQaeDQBtWQzbIfr/OrAGBUOnjNnGfr/ADqwBQAgFBBFOApcUAV7qTy4CR1PAr2PwtGY9DskbqIl/lXi17+8uYIB/EwH5mvddNj8q2iQDG1QP0oQFykboaXtSN0piM67XINcV4miBjbiu4uehrk9fUGJz7UAeU6iuCwrKrc1dQJGFYjDDEUhjacBx1pKB1oAKAcc0uKSgCSM4YHtmpZIjGdydDyKrir1t+8HlEjcOVz0NAFRwCNyjHqPSmoQAc1cuolT95GpU/xKexqmxyfugUAP5HINAlde5pqvjinMc0ABnc/xGmlyeppp60YoAUtTSaCKKAEopcUUAJRS4oxQAlFLjPSjFACUUuKMUAJWvpx/0VfqayK1LA/6Mv1NAFvNITSZpCaAEao2p5qNqAI2qOpGplADTTTTzTDQAhpM0GkNAC5pQaZmlBoA6TTBmxiP1/nVoCq2k86dD+P8zVwCmA3FGKfiq+oSeTbMehPAoAr6HGb/AMTWiHkGYfkOa93gHyivF/h5b+d4lgY/8s1LV7VEMLSAkpG6U6mt0piKV1wM1yeu5ZGrq7vvXJ63yrYoA801lQJm+tYMn3zXQa0hEhPvXPycOaQxuc0UlKKAOn8HaJZamt3LqMhjgwLeBs4/fv8Ad/AYJrnLiF7eeSCUbZI2KMPQg4NdB4gJ0uy0vR422SwqLqcjtK/IH4LgUzxciXMtprMQHl6jEHfH8Mq8OPz5/GgDJ0mKO41SzgkGY5ZkRh7FgDW/q19pdhqt5bxaFbFbado0JlfOAcVh6F/yHNP/AOvmP/0IVN4p48Sap/19Sf8AoRoA3RqegX1qxudFeKQ8NJb3ByB64PBrK1jQ1t7Uahp1z9s08naX27Xib+669vr0NZlpKY8+nQ+9bXhm6FtrC283z2d4PImTsyNxn6g8/hQAzwpa2c66tcXlsLgWlm0yRsxALAgc4+tRf2zpv/Qv2v8A39etPRbN9PbxXZyffgspIyfXDgVyQGaANltY04qwGgWqkjAPmPxUWm2kNxpmrzyIfMt4kaPnoS4B/Q1mqOeeldBoSY0XXnI48iP/ANGLQBzrjacHrSCpHUu2fWnLHg80AdERp2neGNJu5NLiuri6abe8jsOFbAGBVL+2NN/6F+1/7+vVjWf+RO8O/wC9c/8Aodc/sPl7vegC9qGoWl1AI4NLhtXDZ3o7EkenNUY42ldUQFnY4AHc0wipIJpIJFkiba69D6UAabrYaaTFLGby4HDYfaiH0GOppIn02+Kwtbm0kY4WVXLLntkHtWUSSST1NPiVndUQZZiAAKnk6iLYMdjLLb3NmksqMQSXIx+VP12CC3uYhbx+WjwJJtznBI5p3iEhtUlCj7iqjEd2AAP607xH/wAfNr/16x/ypLdPuBk1o2Rxbj6ms2r9mf3A+pqxlvNGaYDTs0ABphpxppoAjamU802gBCKYalYVGwoAjNNNPNMNACUUlFAHVaMM6ZD+P8zV7FU9DH/Erg/H+Zq/imAzFZGtyfvI4x0HJrbxXM6hJ5t5IwPGcCkB2Hwrt9+qXM2OEjC/ma9aT7ted/CeAizupiPvyAA/QV6KOlMQopG6U4U1+lAFG76GuW1gfK1dRddDXL6v91qAPOtdHzsa5qb75rqNdGWc1y8/3qQyOtjwpZRXesRvccWtqpuJyem1ecficD8axxXWacLDS/Cchv3uo5tWfCeQqk+Sh5zkjGW/lQBzup3smo6jcXkv355C59s9q2NH/wCJl4e1DSzkzW/+mW4+nDj8sH8Kq7fDn/PbVv8Av3H/APFVe0a+0DTNTt7xJNVby2+ZDHHhlPBB56EZFAGRoP8AyHNP5x/pMf8A6EKl8Uf8jJqn/X1J/wChGrs2njTPGlvbpzF9qjeI+sbMCp/I1S8UH/ipNU/6+pP/AEI0AZqkD3Naml7p72zC/fMqBcfUVk10/h23/smFdfv12xQ5+yRNwZ5exA/ujqTQB0SyWv8AwknjOSeNpbcW8odEbaT8w6GuU+2eGP8AoE33/gUP8KueG5Glt/EsjMWL6e7En1LCuVoA27q40OS3ZbPT7qGc/deS4DAfhitDRFDaNri9EEEYJ/7aLXLISGGK7HRkEPh/WMjk26E++ZFoAwkgDEt+OKiulEcrf7K/qavwEOzDp2FUrnD+Zj+9+gFAHQzTaVD4M0EajZz3DFrgqYpdgA3/AEqjFd+Gmgcf2RfYHP8Ax8j/AAputnPg/wAPH1a5/wDQ6xbbmN1oAsas9hJIh0+2mgjx8wlk3kn1rNPFWG5QE9uKhYc/WgBBite2RdKgF5MB9qcfuIz/AA/7Z/pTYIItNhW6ulDzuMwwH/0Jvb0FZ1zPLczNLK5d2OSTU/Fp0EHmkkluSepNa+uhGurYFgCbWPr9Kw61fEX/AB82v/XrH/KhrVAU5LX+JWUj2qS3BSMKeuapq7L0YircLlkBY5NUMsA0uajBpwNAD8000ZpDQA1qbSmkoAkYVEwqdhUbCgCBhTDUrCoyKAIzSU402gDr9C/5BUH4/wAzWhiqOgj/AIlNv9D/ADNaGKYENwStvIy9QpxXKnk59a6i/OyzmP8AsmuWXLHaOTSA9i+G8Pl+HICRguxb9a7EdKxPDFsLbRrSIDG2NePfFbY6UxC5pjninUyToaAKF10Nc1qw4aukuSNtc9qf3TQB59rqferlLgYNdjro+8DXH3PU0hkIFXdW1OTUng3RpFHBCsMcaZ2qo+vqcn8aoUUALRmkooA1ZNamlfTJGhj8zT1Co/OXAbcA306fSrN5ren3t3NdTaDbGWZy7kXEoGScn+KsGlFAG7FrtpbA/ZNBsI5Ozyl5Sp9gxxWbqWo3mqXRuL24eaU8ZboB6AdAPpVSigDV0TV/7K+1g2sdzFdQmCRJGK/KTngg5zxTv7S0v/oAW/8A4ES//FVkik/GgDaj1LS96/8AEgt+v/PxL/jV5NbSzFzG1lFcW88axNG7suMEMMEHPauZT7wpZJGkbk0AdJBrulKrf8SK3B5/5eJf8arXmrWE0bxxaJBDIy4EgnkO0+uCcVhpy1K7ZYk9aANqLXIW0mz0670uC6S0L+W7SujfMcnODilg1PTAWA0G36f8/Mv+NYeeM0+DmUDOKANO5vLGaGSOHSIbdzyJFmkYj8CcVRsrhLS6SZoEnCHIR87SffFJGQTtPoahagDQuNSt7iZpZdPR3Y5JMr/41F9ss/8AoGR/9/X/AMaoUopWAnuZIpWBit1hGMbQxP4806/u2vHjd1VSkaxjHoKr7T25FNpgFWrf/ViqtWYP9WKAJwacDUYNOzQA/NITTc0ZoACaSkJpM0AXGFRMKmYVEwoAhYVGwqZhUTUARGmmntTDQBsafros7OO3+zF9mfm34zzn0qz/AMJOP+fM/wDfz/61c7RQBuXmv/ardohbFN3ffn+lZ8FwqTI7JuVWBK5xmqgpwNAHp1v8VEiQKNFOB/08f/Y1YHxYU/8AMFb/AMCP/sa8sU1KpoA9QHxVU/8AMGb/AMCP/saD8UVYf8gdh/28f/Y15mpqVTQB6BJ8RVk/5hRH/bf/AOtWfc+MhOCPsBXP/TX/AOtXJA04UAX77UftQI8rbn/azWNLZmQk78fhVuigDP8A7PP/AD1/8do/s8/89f8Ax2tDFGKAM/8As8/89P8Ax2j+zz/z1/8AHav4pcUAZ/8AZx/56/8AjtL/AGcf+ev/AI7V+loAof2af+ev/jtA03/pr/47V+igCj/Zv/TX/wAdpP7N/wCmv/jtX6KAKA08g583/wAdppsOf9b/AOO1fNNNAFH7CR/y0/Smmz/6afpV4000AU/suP4/0oWDac7s/hVoimkUAQeXh9wP4U1osjrU5FIRQBWMH+1+lJ5H+1+lWcUmKAK/k+/6Unk/7X6VYxSUAQeT/tfpUqLtXGc0tFADs0uaZS5oAdmkzSZozQAuaSkooA0GqNqkao2oAiaomqVqiagCNqYae1MNADaSlNJQAtKKbmlFAEgNSKahBqRTQBOpqRTUCmpFNAE4NPBqEGng0ASUtNBpc0ALRSZozQAtFJRQAtFJRmgBc0ZpM0ZoAXNJmkzRmgANIaKKAEppFOpKAGkU0inkUmKAGYpCKeaaaAGEUhFONNNADTSGnGmmgBKSlpKACiikoAM0ZoooAKUUlFAGi1RtT2qNqAI2qNqkaomoAjamGntTDQB0WmSpo3hn+2IbeGbULm7a2ilmjEi26oisSFORuYuMEg4CnHWnQ69peqKT4lsmlniO+O4skSF5v+mUmABtP98DcPftQ0PV47JJrG/gN1pN0R58IOHVhnEkZ7OuT7EZB4NR67or6W8M0My3enXQLWt3GMLKO4I/hcdCp5H0wSAaUHi+4lu0guNN06TSncK2nx2qKoQ8YVgN4b0bOc9c1k+IbBNK17UdOjkMkdrcSRKx6kKxAz71swxReDkS5ukSXxCwDwW7jK2IPIkkHeTuqH7vU84FcvJI8sjSSOzu5LMzHJJPUk0AKDTgajFOBoAmU1IpqAGpAaAJ1NPBqBTUgNAFiJTI4QMq57s2APxqf7JIJpomaNPJOHdj8o5x+NUga1RfKZrwR3LW/nSiRZNp6DPBxyOv6UAVmt5RbpOFLRsCcqCQuDjmle2mSEzbCYgwXeAcZIzV1r62Z45UlZFiMp8jafm3E4HHHOeagu7qKa2dFkOQ6MAQfmwgU/qKAKoRjE0vG1SF+pOf8KelvI9rJcjAjjYKSTySfSkmkXyIIUYEAF3I/vH/AAAA/OrK31sbR4XtjwiKqiQ4bDZJ6cZoAry28kVvDO4AWbO0Z54xyfzp62cjfZ/nj/fvsXDZweOuOnUVJd3cF3Ao2GKTzHc5YsAMDAHHtj2xTbS5iiFpvJ/dXBkbA/h+X/A0AQLC7RySYwsYySe/IHH4mnC2mZI3SNnDgsAgJIAOOfxq1JqCETSxnY8kQQRbMqmGB4zxggZ+tLFeQyeQ80oWWGNsDy8KW3EjO0dAOfegCgI3Moi2kSFtu0jBzUkVsZGmHmxosX3mYnHXHGB60sUojnmnaXzJACUY5yzHjPPpkmi0uBbxXAGN7oqrlQw+8D39hQA2SApGZA6Om/ZuUnk4z3oFvIbQ3WB5QfYeec+v0qVZI57RklmWKTzvM+4cEbcdhxUwu7URi18smLyTGZcnqfm3bf8Aex+AoArmykCEl4/MCeYYs/MFxnPp05xnNVquXD207PctKwdkH7oKch8AdemOM1ToASkNLSGgBDTTSmmmgBppppxppoAQ0006koAEKrIjOpZAwLKDjI7jPatTxTeaPf6u8+habJptiUUCB33EMByepxn6/wA6zYS4njMa7pA4Krt3ZOeBjvz2rf8AiBd61feI3n1/To9PvzCgMKJtG0Dg9TnPPOfbtQBzdFLSUAJRRSUAFKKSlFAF9qjantTGoAjao2p7UxqAI2php5phoAaa1dD8R6joaTR2bxNHIQ4SaMSLHIPuyoD91x2aso000AOlkeaV5ZXaSR2LM7HJYnqSe5ptBpKAFpwNNpRQA8Gng1EDTgaAJgaeDUINOBoAmBp4NQg04GgCXNLmowaXNAD80uaZmjNAD80ZpuaM0AOzRTc0ZoAdmlzTc0UAOpabRQA6ikpM0ALmkJpCaQmgAJppoJpDQAhpKDSUAJRRQaAAEqQykgg5BBwQas6nqV9q12bvUbua6uCoUyStubA6CqtJQAUlFIaACkpaSgApRRQKALzVG1PNRtQAxqjNSNUbUAMNMNPNMNADTTTTjTaAEooooAKWkooAcKUGm0tADwacDUYNOBoAlBpwNRA04GgCQGnA1EDTgaAJM0uajBpc0APzS5pmaXNADs0uabmjNADqWm0tADqM02loAWjNJRQAZpDRSGgBDSGg0lAAaSlpDQAlFFIaACkoNFACUlLRQAlFLS4oASlFGKUUAWWpjU9qjNADGqNqkaozQAw00040w0AIabSmkoASiikoAWikooAWlpKKAHUoNNpaAHA04GmClBoAeDTgajBpwNAEgNKDUYNKDQBJmlzTAaUGgB+aXNMBpc0APzS0zNLmgB1LTc0UAOpKKSgBaSiigBKSlpKACkNKaQ0AJSUtJQAlFLijFACUYpcUuKAExRS0UAJS0UlAFg0w040w0AMamGnmozQA00w04000ANNJSmkoASkpaSgAooooAWiul+GkaS+PdCSRFdGulBVhkH8K9kn1jUJ/iVL4Zk8J2F1ojSiNpTYnIQoCWLfd4JPb9aAPnalr0e6+HSat438RWumXUFhoelyFprqY5SEEZKj1wdw68Acms7xJ4Ck0PTrPXNO1W21jSJZhH9ogG0o2ejDJ9Mdf6UAch9juhKITbTeaRkJ5Z3EeuKiKsCQVI2nByOhr6VvST8eNM5/5g7f+hPXniQarJ4C8cSwXVkmnJqb+dFJb7pWO9fuvngcjqD0OMZoA8tzSg16WPhLFC+li+8V6fZjU4la3WSM+Y7tj5QueRyOc9SOKy7H4ZavdeNL3w0Z4IjZL5s122fLWMgEMB6nI4+vpQBxQNKMkgAEk9AK77UPhrBD4d1TXdO8T2Op2dgOfIjOWbjIPPHUeuay/hXHfTeO9MTTpreG7PmFHuIjIgwjE5UEHp7igDlgacDXoQ8A3niK+8UalcazYWradfyJcO8RSJucsw5+UdeOazPGHgU+HtFsdbs9Xt9V0y7fyxPChXa3PbJyOD+VAHIg1IkUrozpFIyJ95lUkL9T2rv8A4K+HdH1/Xbgas1tP5cR2WMqkmTp84Pt0/Guo8F6NaRaB4/0qy1a0ltmCqLs5SKMFGznrgL0P0oA8XzS5rrvFPgNtF0Kz1zTtXt9Y065kEPmQIVKvzgYycjII+ta8PwokDW9heeJNOtNeuYvNi05wS2MHgtnrweg7HrQB51mk3r/eH51LqNrPp91c2d1GY7i3do5EP8LDg17f8QfFn/CIx+H4YdG0u8trmzDzpPACWA2jAPbqeoNAHhuaK9J8feBopfEeh/8ACM2wjg1+LzIoCcLEwAZj7LtIPtg4qrqPwyMVnqB0vxDYapf6ahe7s4lKugHXByckc+np1oA4Ciu30X4ei60Sz1bWdestFgvzizSddzS+h6jAP8ql074W6pdeItU0S5vbe1nsIFnWVlLRzK2cEHjA459OaAODpK7XXPAH2Lw0+v6VrlnrNnA4S5NupHlHgZHJyMkenXNcVQAGkpaSgApKWigAxRilxRQAmKMUUUAFJQaQmgAJpM0hNJmgC0aYacaYaAGNTDTzTDQAw0004000ANNIaU0hoASkpaSgAooooA6X4ayRw+PNDkldY41ulLMxAAHua9gg+Ici/FLU/D2o6jG+h3I8i3kRlUQsUBBDjnkkjOeCR6V89UUAezeFrWztLPxj4BuNVtYry8ffZ3Uko8ucYyMsO+AuR15PpUGtR23g34XHwteahaXOrX98s5itpN4hQMpyT2+4Pz9q8gpaAPo681GxPxw024F7bGAaQymQTLtB3PxnOM1yNld2o+GHj2E3MIll1NzGnmDc43x8gdxXj9FAHsfxDvLWbWvh40VzA4ijgEhWQEJ80fX0/GulfW9Jb4m+KNLm1G3hTWNOiggufMBQOEIxnOM/N+mK+d62PC+tx6Dqf2uXTLPUomjaJ4LpNylT1x6H3oA9ZsvDM/hf4S+L7O6vbK5ndg5FrL5gQfKBuOOCeuPSuF+Dk0UHxF0qWeWOKNfNy7sFA/dt3NL4g+IP27w8/h/RtEtNF02Zw86QsXaU8HliBxwPfgdq4mgD2s3tp/wi/wATk+1Qb5r+QxL5i5cZ6rzz+FYmq3Nu3wE0W3E8RnXUCxiDjeBul5I615fxS0Aeh/A2/tbDx7E13cRwJLbSRI0jBQWOCBk/Q10uk2Q8PeGviLpt7eWbXEkfmR+XMCHDK5AGep56V4x1pQB6CgD1ey1O2svgtprGSJ5rfV1mMAcbyFkJ6da7zVNRuNX1G017w7d+EmsGjVnu7+P/AEi3I65OQeB24xzXzbxnOOaXAPUCgDV8U30upa9qd5NLbzSzTOWktwRG/bcoPODjPNex+P8AwxF4vTQJYde0m0trW0Edw01wNy5CnIA69D1IrwnNJtX+6PyoA9sufiBoUHxD8PxW8+/RdJtns/tfbc6hd3uo2qM/WtTWrzWdIGsala3ngu30+SORobiOL99cg8hDtPLH1555xXgOaAFByAPyoA980/Vj4l8F6ENC/wCEdmvbCFYLm11dAzR4UDK+g+XPuCPSp/C1/dav4z8SR3+o6ZcvDpKW5uLEEQqMsTnJPQse/avn0gHqAa6bwT4ufwm2pGOyS5+3W/kEGTZsHPPQ560AdqLCHwL8Ltcsb/U7G5vdXYJbRWsvmArgDd9MZOfpXk9MUBQMDt1p2aAFopM0ZoAWlpM0ZoAWikzSZoAWkJpCaQmgAJppNBNNJoACaTNITSZoAummmnGmGgBpphp5phoAYaaacaYaAENNNONNNABSUtJQAUUUUAFFFFABS0lFAC0UlLQAVbstNub23up4EDR2qb5DnGB7evf8qqV1+mLHpllpiyXlrAZHNzcRylgXRhtA4B/h3fnQByFWruyktYbWV2Ui5j8xQOwyRz+VbgtW0S31iSFUe5t5o445GUNsjbJ3AHjnjn3q/GiXlxps90ib00x5lXysqWDNg7B19cd6AOU02zfUL6G0iZVeVsAt0FVzwcV2OnXNrdalpTrMbm6W4ZTOLbygU29DjgkH9DVawNvYaHa3K3CW8k8snmObUTbtpGE56DHOO+aAOYzT9jCISHG0ttHuasaz9nOq3P2SNkgL5RGUqRntjtzUd4djJAOkS7T/AL3U/r/KkXGPutsIbd5E37kRM4DO2AT6ClFtOZmiEZ3r94en40lunmLmVytvHyfx7D3NJJMZ7nzCMbmHA7DsKC+WHKm0EitFI0bfeU4NNzUt+f8ATrj/AK6GoM00ZzXLJpD80ZpmaXNBI/NGaZmlzQA/NLmo80uaAH5ozTM0uaAH5ozTM0ZoAdmjNMzRmgBxNNJpCaaTQApNNJoJppNACk0maSigC+aaacaaaAGGmmnGmGgBppppxppoAaaaacaQ0AIaSlNJQAUUUUAFFFFABRRRQAUUUUAFTXNxNdS+bPI0jkAZPoBgD8qhpRQBdi1bUIZxNHdSCQRiLPXKDoD6j60kuqX8tzFcvdymeL/Vvu5XnPH51TooAvy6zqMs8U73chkhOYyMAKe5AHGaZZapfWCutrcvGrnLLwQT64Pf3qnRQBKbiRrj7Q7mSUtuLPySfemMSzFicknJNNooHd2sTxXU8SbI5Cq5zj3psk0kj73YlvWo6KLDc5NWb0Hu7O5dySzHJPrSZptFBLdx2aXNNooAdmlzTM0uaAHZozTc0ZoAdmlzTM0ZoAfmjNMzRmgB2aM03NJmgB2aTNJmkoAXNJRSUAFFFJQBoGmmlNIaAGmmGnmmGgBppppxppoAaaQ0ppDQAlJS0lABRRRQAUUUUAFFFFABRRRQAUtFFABRRRQAUUUtACUUtFACUUUUAFFFFAC0UlFAC0UUUAFFFFABRSUUALRSUUALRSUUAFFFFABRRRQAlFLRQBeNNNKaaaAENNNONMNACGmGnGmmgDQ0fS21KV8vsiT7zYyfoK0tQ8NIlu0lpK7OgzsfB3fT3qPwxqMVv5ltO4QOdyMeBnuDW3qGpW1nbs5lRnx8iK2STWMpSUtD6LB4XBzwnPPfq+39ficN5Un/ADzf8jSeVJ/zzf8AKr39sXX+x/3zSf2xdf7H/fNbHzpS8qT/AJ5v+VHlSf8APN/yq7/bF1/sf980f2xdf7H/AHzQBS8qT/nm/wCVHlSf883/ACq7/bF1/sf980v9sXX+x/3zQBR8qT/nm/5UvlSf882/I1d/ti6/6Z/980f2xdf9M/8AvmgCl5Un/PN/yNHlSf8APN/yNXf7Yuv+mf8A3zR/bF1/0z/75oApeVJ/zzf8jR5Un/PN/wAjV3+2Lr/pn/3zR/bF1/0z/wC+aAKXlSf883/I0eVJ/wA83/I1d/ti6/6Z/wDfNH9r3X/TP/vmgCl5cn/PN/8Avk0eXJ/zzf8A75NXv7Yu/wDpn/3zR/a93/0z/wC+aAKPlyf883/75NHlyf8APN/++TV7+17v/pn/AN80f2vd/wDTP/vmgCj5cn/PN/8Avk0eVJ/zzf8A75NXv7Yu/wDpn/3zR/bF3/0z/wC+aAKPlSf883/I0eVJ/wA83/I1e/ti7/6Z/wDfNJ/a91/0z/75oApeVJ/zzf8AI0eVJ/zzf8jV3+17r/pn/wB80v8AbF3/ANM/++aAKPlSf883/I0eVJ/zzf8AI1e/ti7/AOmf/fNH9sXf/TP/AL5oAo+VJ/zzf8jR5Un/ADzf8jV3+17r/pn/AN80f2xdf9M/++aAKXlSf883/I0eVJ/zzf8AI1d/ti6/6Z/980f2xdf9M/8AvmgCl5Un/PN/yNHlSf8APN/yNXf7Yuv+mf8A3zR/bF1/0z/75oApeVJ/zzf8qYcg4NaH9sXX/TP/AL5qjNI00rSPjcxycUANzRRRQAUUUUAFFFFAFykNFIaAENNNKaQ0ANNNNONNNAGlaadDNaxF3kE9wJTHtxtGwZ59c4P0pbLS4Jo4RJMxkuJGjiMeNqkKDk55PLAfgarwalLBbCFUjYrvEbsDuTcMNjnHPvToNVkt02xwQDaS0Zwf3bFQCRz3wOueaAI57aBdNguYpJGd5GRwygAEBTxzz1qlUxuHNottgbFcyDjnJAH9BUNABRRRQAUtFFABRRS0AJRS0UAJRS0UAIKWiigAooooAWikzRmgAooooAKKKKACiiigAooooAKKKKAEopaKAHQiNpUErFIyRuYDJA+lX9R05LcwmMuhlj3iKUgt97AAIGDnriqEMhhmSVQpKEEBhkH6jvVqXUpGMeyKKJYQfKCbv3ZJyWBznORQBf8A7EhTyQ0ksr+S8kscYGSynG1fpnk+xrN1O0FlevAC2AFYbxhgGAOD7jNSy6vdzi3Fw3nCAkqHJ5J9SCDVW6uJLqd5pSC7nnAwB6AUARUUUUAFLSUtABRRRQBZNIaWkoAQ000ppDQA00hpTSGgBpoNBpDQAUlLSUAFFFFAC0UUUAKKKKKACiiigAooooAKKKKACiiigAooooAKKKKAFooFFABQaKKAEooooAKKKKACiiigApKWigBKKKKACiiigBaKKKACiiigCxSUUlAAaaaU0hoAQ000ppDQAhpDS0lABSUtJQAUopKWgAooooAWigUUAFFFFABRRRQAUUUUAFJRRQAUUUUALRSUtABS0lLQAUUUUAJRRRQAUUUUAFFFFABRRRQAUlLRQAlLRRQAUUUUAFFFFAE1JRRQAlIaWkoAQ0lLSUAJSUtJQAUlLSUAFLRRQAUUUUAFLSUUALRSUUALRSUtABSGlpKACivSvCPwx/4S/wACnVdOufK1SK4kj8uQ/u5VAUgZ/hPJ56fzrgNV0y+0e+ksdRtZba5jOGjkGD9fce4oAqUUUUAFAoooAWiiigAooooAKKKSgAooooAWikpaACiiigAooooAKKKKACiiigAooooAkoopKACrkNgGt0uLi6hto5CRHvDMXx1IAB47ZNU6uX7q1ppoVlJWAhgD0PmMcGgBfsVn/wBBa3/79Sf/ABNXdO0mwuEuRJqMZVI93mqjgRkdM5GCD0x19Kw6NxAIBOD1HrQAh796Sruswx2+q3UMS7Y0kIVfQVSoAKSlpKACtTwxBFdeJdJt54xJDNeQpIh6MpcAj8qy62PB/wDyNuif9f8AB/6MWgD0H49eG9G8OzaKukafDZidZjJ5efmxsxnJ7ZP51zngP4ba14wkWZENnpmfmu5V4Psg/iP6e9e++LtG8Max4l0RPEEyNcIsv2S0lbak5ymc/wB4jA+XPOehrro40ijWONFRFACqowAPQCgDxT4p+DdG8IfDQQaZb/vWu4hLcScyy8N1Pp7DivCq+lv2g/8AkQB/1+RfyavmmgAooooAKKKKACiiigD6V/Z7/wCRBb/r9l/ktdd4v8IaP4usfs2qW4LqD5U6cSRH/ZP9DxXI/s9/8iC3/X7L/Ja9NoA+UPHvw41jwdM0sim70wthLuNeB6Bx/Cf0964yvt+aKOeJ4po0kicFWRwCrD0IPWvmD4v6N4U0fW/L8O3mZyx+02kfzxQn2bsf9nnHt0oA8/ooooAKWkooAWikooAs6Z/yErT/AK7J/wChCvoj4g/B7Tte82/0Ty9P1I5Zo8YhmPuB90+4/LvXzvpn/IStP+uyf+hCvtmgD4t13RNS0C/ex1S0ktrhP4XHDD1U9CPcV634o8KaDafBW01q30uCPUntbV2uBncWYpuPXvk/nXrXjHR9B1fRZk8QxwfY4lLGaVghh/2g3Y1xPxIis4PgesWnztcWSQ2qwSsMF0DptJ4HUYoA+cKWkooAWikpaACprW3Fw5Uzww4GcysQD7cA1BRQBavbKS08tmaOSOQEpJG25Wx1/EelXNO0czy2/wBpljiSf7se/EjA9CBg/r1pmkEyQzR3GDYRETy5HORwAp7Fun/6qr31xdnUJZpt8NwTyBlSoxjA9scfSgBmoWws72a2E0c4jbb5kZyrVXoooAKKKKAJKSiigArW0ebTY7O8W5jY3TL+7YsANvdRkHDH1/lWRRQBf8zSf+fS9/8AAhf/AIihZ9JRgwsrpyOdr3A2n64XOKz6KAJLqd7q5luJcb5GLNjpk1FRRQAGkoooAK1/CBC+LNFJIAF9ASScAfvFrIooA9r/AGkriOW48PtDMjlVn5Rgccx+lZnw++Mt/o/lWHiHzL+wGFWcczRD3/vj68+56V5PRQB9FfGvVtP1v4YxX2mXcV1bSXkWHjOecNwfQ+x5r52zUiXM6W8lus0iwSEM8YY7WI6Ej1FRUALmikooAWikooAWikooA+lv2e/+RBb/AK/Zf5LXoOrapY6NYyX2pXUVtbRj5pJDgfQep9hzXhfw8+IuleC/h00UubrU5LqVorVDjjC4LH+Efqa868XeLtY8W35utUuSyqf3UCcRxD0Uf1PNAHcfEP4xX2t+bp+gGSx045Vps4mmH/so9hz/ACryqkooAWikooAWikooAWiikoAtaZ/yErT/AK7J/wChCvqrx18Q9F8HQlLiT7TqBGUs4mG/2LH+EfX8Aa+TUdo3V0YqynII6g06eaW4meaeV5ZZCWd3YszH1JPWgDo/GnjjWvGF1v1CfZbKcxWsWRGn4dz7mvWvGFxC37P9lEs0ZkFnZ/KHGeqdq+fqWgAooooAKKKKACp7SSCJybi389SMBd5TB9eKgooAu3d8ssC21vbrb24beVDFi7dMkn07fU1asNTiMtr9riUyQkKlzvZSqjpkAHdj/wCtWRRQBc1ee1udQmls7fyIGPypn9fbPp2qnRRQAUUUUAOzRSZooAWkoooAKSiigAoopKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAdSUUZoAKKM0UAFFJRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAGx4Q0mLXvE2naVNK8Ud3MI2dMZUH0zTND0uPUvE9hpMkjpFc3iW7OuNwDOFyPfmtT4X/8lB0H/r6WofB//JQ9G/7CkP8A6NFAFB9MjXxO2leY/lC9NtvwN23ftz9aTxNpsej+ItT0yKRpI7S5khV26sFYjJ/Kr83/ACUJ/wDsLH/0bTfiD/yPXiD/ALCE/wD6GaAOfooooAKKKKACiiigAooooAUAsQACSeABXZ2vhjS9CtY73xlPcQvOAYdLtcfaSp/jfPCDuAeT7VF8Lz5fiK5uVVDNa6ddTwsyhtkixkqwz3Brlru6uL25lubqaSeeVizySMWZj6kmgDe8ReFJNOtE1bTLldT0OVsR3cQwYz/clXqjfXg9q5uuy+Et3PH430+yWQ/ZL5zBdQNykyEHhlPBrkJgBM4AwAxxQAyiiigAooooAKKKKACiiigDe8PeGW1izur+41Gz03T7Z1ja4uS2GdskKoUEk4BNaH/CJaN/0O+jf9+5/wD4iltP+SU6l/2GIP8A0VJXOaPpd5rOp2+nWEJmurhwiKP5n0A6k9qAOntvA1rqEwtdL8V6Pe3zg+VbqJUaUgZ2gsoGeOMmuNIKkgjBHBFeg+FbPS9O+K+hWWlXUl5HBMiTXBxsklAO8x/7GeBn0zXBXX/HzL/vn+dAEVFFFABRRRQAUUUUAFFFFABWv4b8PXniG8aG3KRQQr5lzdTHbFbx92Y/06mqOnRW09/bRXlwba1eRVlmCbzGpPLY74Hauy+Is1xpKQeH9OthaeHcCa3kifeNQ/6bO4+8f9n+HpigDldfj0qHU5YtGnuLiyQBVmnUK0hA5YAdATnAPOOtZ1FFABRRRQAUUUUAFFFFABRRRQB0Pw/vrbTfGmj3t5MsNtBcK8kjdFHrUXhi8t7Txrpd7PKsdtFqEUryHoqCQEn8qw6KANuW7tz41e9Eq/ZjqJl8zts8zOfypPGl3Bf+L9avLWUS2897LJG46MpckGsWigAooooAKKKKACiiigAooooA674ZPENfuopbiC3Nxp11CjzyCNN7RkKCx4HNH/CvtS/6Cmgf+DSH/GuRooA9M8C+E7jQ/F2l6pfatoS2ttLvkK6lExAwe2ea82mIMzkHILHFMooAKKKKACiiigAooooAKKKKAOu8N6toH/CLXuh64+owrLeR3SSWcSP91GXB3MP71WrGbwPp8jyWes+KYHeNomaO3hUlGGCPv9CK4eigD0Hw7qHgLQNcs9Wgu/EM0tpJ5ixvbQgMfQnfXAzOJJXcDAZiaZRQAUUUUAFFFFABRRRQAUUUUAFdN4a8Sw21o2ia7A97oMzbjGp/eWzn/lpET0PqOh71zNFAGjr9ha6bqktvY6jDqFrgNFcRAjcpGRkHow7jsazqKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//2Q==" style="width:100%;display:block;" />
+      <div id="auralBadge" onclick="openSettings('home')" style="position:absolute;left:50%;top:439px;transform:translateX(-50%);cursor:pointer;display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;white-space:nowrap;background:rgba(40,40,44,0.55);border:1px solid rgba(255,255,255,0.28);transition:background .18s ease,border-color .18s ease;">
+        <span id="badgeText" style="font-size:11px;color:#c9c9ce;font-weight:600;letter-spacing:.01em;">AuralTune</span>
+        <span id="badgeIcon" style="font-size:14px;color:#c9c9ce;line-height:1;">›</span>
+      </div>
+    </div>
+
+    <div id="screenSettings" style="display:none;width:380px;min-height:600px;border-radius:20px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.5);background:#151517;">
+      <div style="padding:20px 20px 28px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <span onclick="goBackFromSettings()" role="button" aria-label="뒤로" style="font-size:22px;color:#e8e8ea;cursor:pointer;padding:4px 10px 4px 2px;line-height:1;user-select:none;">‹</span>
+          <span style="font-size:13px;color:#8a8a90;">설정</span>
+          <span aria-hidden="true" style="font-size:12px;color:#5a5a60;">›</span>
+          <span style="font-size:16px;color:#e8e8ea;font-weight:600;">AuralTune</span>
+          <!-- 1단계(선택 후 바로 청취) ↔ 2단계(튜닝) 전환 — 프로파일이 있을 때만 노출 -->
+          <button id="tuningToggleBtn" onclick="toggleEditMode()" style="display:none;margin-left:auto;padding:6px 12px;border-radius:8px;border:1px solid #303034;background:#1f1f22;color:#c9c9ce;font-size:12px;font-weight:600;cursor:pointer;">튜닝</button>
+        </div>
+
+        <div id="searchArea" style="position:relative;margin-bottom:6px;">
+          <div id="searchBox" onclick="toggleSearchList()" style="display:flex;align-items:center;gap:8px;background:#1f1f22;border:1px solid #303034;border-radius:12px;padding:10px 14px;cursor:pointer;">
+            <span aria-hidden="true" style="font-size:13px;color:#8a8a90;">⌕</span>
+            <span id="searchText" style="font-size:13px;color:#8a8a90;">헤드폰 또는 프로파일 검색</span>
+          </div>
+          <div id="searchList" style="display:none;position:absolute;left:0;right:0;top:44px;z-index:5;background:#232326;border:1px solid #303034;border-radius:12px;overflow:hidden;">
+            <div onclick="selectProfile('JH Audio Roxanne')" style="padding:10px 14px;font-size:13px;color:#e8e8ea;cursor:pointer;border-bottom:1px solid #2a2a2e;">JH Audio Roxanne</div>
+            <div onclick="selectProfile('Sennheiser HD650')" style="padding:10px 14px;font-size:13px;color:#e8e8ea;cursor:pointer;border-bottom:1px solid #2a2a2e;">Sennheiser HD650</div>
+            <div onclick="selectProfile(null)" style="padding:10px 14px;font-size:13px;color:#8a8a90;cursor:pointer;">원음 (Off)</div>
+          </div>
+        </div>
+
+        <div style="background:#1a1a1d;border:1px solid #2a2a2e;border-radius:14px;padding:14px;margin:14px 0 4px;">
+          <svg id="eqGraph" viewBox="0 0 340 120" style="width:100%;height:120px;display:block;">
+            <line x1="0" y1="60" x2="340" y2="60" stroke="#3a3a3f" stroke-width="1" stroke-dasharray="3,3" />
+            <path id="autoCurve" d="" fill="none" stroke="#6a6a70" stroke-width="1.5" stroke-dasharray="4,3" style="display:none;" />
+            <path id="tunedCurve" d="" fill="none" stroke="#d62839" stroke-width="2" style="display:none;" />
+          </svg>
+        </div>
+        <div id="emptyGraphHint" style="font-size:11px;color:#8a8a90;text-align:center;margin-bottom:6px;">프로파일을 선택하면 보정 커브가 표시됩니다</div>
+        <div id="graphLegend" style="display:none;font-size:10px;color:#8a8a90;text-align:center;margin-bottom:10px;">실선 = 편집본 · 회색 점선 = 원본</div>
+
+        <div id="tuneArea" style="display:none;">
+          <!-- 1단계: Easy ↔ Pro -->
+          <div style="display:flex;background:#1f1f22;border-radius:10px;padding:3px;margin-bottom:10px;">
+            <button id="modeEasyBtn" onclick="setUiMode('easy')" style="flex:1;padding:8px;border:none;border-radius:8px;background:#d62839;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">Easy</button>
+            <button id="modeProBtn" onclick="setUiMode('pro')" style="flex:1;padding:8px;border:none;border-radius:8px;background:transparent;color:#c9c9ce;font-size:12px;font-weight:600;cursor:pointer;">Pro</button>
+          </div>
+
+          <!-- Easy = 톤 모드(EqMode.TONE). 다른 모드와 동일하게 base(원본/불러온 커스텀)→
+               draft(임시 편집)→저장(커스텀) 구조를 따른다 — "얹기" 개념 노출 없음. -->
+          <div id="easyPanel">
+            <div id="toneRows"></div>
+            <div style="display:flex;gap:8px;margin-top:12px;">
+              <button onclick="resetTone()" style="flex:1;padding:8px;border-radius:10px;border:1px solid #303034;background:#1f1f22;color:#c9c9ce;font-size:12px;cursor:pointer;">초기화</button>
+              <button onclick="saveTone()" style="flex:1;padding:8px;border-radius:10px;border:1px solid #303034;background:#1f1f22;color:#c9c9ce;font-size:12px;cursor:pointer;">저장하기</button>
+              <button onclick="toggleToneList()" style="padding:8px 10px;border-radius:10px;border:1px solid #303034;background:#1f1f22;color:#c9c9ce;font-size:12px;cursor:pointer;">불러오기 ▾</button>
+            </div>
+            <div id="toneList" style="display:none;margin-top:8px;background:#1f1f22;border:1px solid #303034;border-radius:10px;overflow:hidden;"></div>
+          </div>
+
+          <!-- Pro -->
+          <div id="proPanel" style="display:none;">
+            <!-- 2단계: 그래픽 ↔ 파라메트릭 -->
+            <div style="display:flex;background:#1f1f22;border-radius:10px;padding:3px;margin-bottom:10px;">
+              <button id="proGraphicBtn" onclick="setProMode('graphic')" style="flex:1;padding:7px;border:none;border-radius:8px;background:#d62839;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">그래픽</button>
+              <button id="proParametricBtn" onclick="setProMode('parametric')" style="flex:1;padding:7px;border:none;border-radius:8px;background:transparent;color:#c9c9ce;font-size:12px;font-weight:600;cursor:pointer;">파라메트릭</button>
+            </div>
+
+            <!-- 그래픽 = EqMode.GRAPHIC(고정 20밴드). Easy/파라메트릭과 동일한
+                 base→draft→저장(커스텀) 구조 — "얹기" 개념 노출 없음. -->
+            <div id="graphicPanel">
+              <!-- 화면 폭 안에서 페이지 단위로 넘기는 구조(가로 스크롤 없음) — 방송/오디오
+                   튜닝 장비의 세로 페이더를, 고정된 화면 폭에 맞춰 여러 페이지로 나눈 것. -->
+              <div style="display:flex;align-items:center;gap:4px;">
+                <span onclick="setGraphicPage(-1)" style="font-size:18px;color:#8a8a90;cursor:pointer;padding:8px 6px;user-select:none;">‹</span>
+                <div id="graphicFaders" ontouchstart="onGraphicTouchStart(event)" ontouchend="onGraphicTouchEnd(event)" style="display:flex;justify-content:space-around;flex:1;overflow:hidden;"></div>
+                <span onclick="setGraphicPage(1)" style="font-size:18px;color:#8a8a90;cursor:pointer;padding:8px 6px;user-select:none;">›</span>
+              </div>
+              <div id="graphicPageDots" style="display:flex;justify-content:center;gap:6px;margin:6px 0 10px;"></div>
+              <div style="display:flex;gap:8px;">
+                <button onclick="resetGraphic()" style="flex:1;padding:8px;border-radius:10px;border:1px solid #303034;background:#1f1f22;color:#c9c9ce;font-size:12px;cursor:pointer;">초기화</button>
+                <button onclick="saveGraphic()" style="flex:1;padding:8px;border-radius:10px;border:1px solid #303034;background:#1f1f22;color:#c9c9ce;font-size:12px;cursor:pointer;">저장하기</button>
+                <button onclick="toggleGraphicList()" style="padding:8px 10px;border-radius:10px;border:1px solid #303034;background:#1f1f22;color:#c9c9ce;font-size:12px;cursor:pointer;">불러오기 ▾</button>
+              </div>
+              <div id="graphicList" style="display:none;margin-top:8px;background:#1f1f22;border:1px solid #303034;border-radius:10px;overflow:hidden;"></div>
+            </div>
+
+            <!-- 파라메트릭 = EqMode.PARAMETRIC. 이제 다른 두 모드와 동일한 base→draft→
+                 저장(커스텀) 구조 하나만 쓴다 — 예전에 있던 얹기/직접수정 토글은 제거. -->
+            <div id="parametricPanel" style="display:none;">
+              <!-- 그래픽과 같은 이유로 페이지 단위로 넘긴다(밴드 개수가 가변이라 페이지 수도 매번 다시 계산됨) -->
+              <div style="display:flex;align-items:center;gap:4px;">
+                <span onclick="setParamPage(-1)" style="font-size:18px;color:#8a8a90;cursor:pointer;padding:8px 4px;user-select:none;">‹</span>
+                <div id="paramBandStrip" ontouchstart="onParamTouchStart(event)" ontouchend="onParamTouchEnd(event)" style="display:flex;justify-content:space-around;flex:1;padding:6px 0;overflow:hidden;"></div>
+                <span onclick="setParamPage(1)" style="font-size:18px;color:#8a8a90;cursor:pointer;padding:8px 4px;user-select:none;">›</span>
+              </div>
+              <div id="paramPageDots" style="display:flex;justify-content:center;gap:6px;margin:6px 0 10px;"></div>
+              <div style="display:flex;gap:8px;">
+                <button onclick="resetParam()" style="flex:1;padding:8px;border-radius:10px;border:1px solid #303034;background:#1f1f22;color:#c9c9ce;font-size:12px;cursor:pointer;">초기화</button>
+                <button onclick="saveParam()" style="flex:1;padding:8px;border-radius:10px;border:1px solid #303034;background:#1f1f22;color:#c9c9ce;font-size:12px;cursor:pointer;">저장하기</button>
+                <button onclick="toggleParamList()" style="padding:8px 10px;border-radius:10px;border:1px solid #303034;background:#1f1f22;color:#c9c9ce;font-size:12px;cursor:pointer;">불러오기 ▾</button>
+              </div>
+              <div id="paramList" style="display:none;margin-top:8px;background:#1f1f22;border:1px solid #303034;border-radius:10px;overflow:hidden;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let auralOn = false;
+let selectedProfileName = null;
+let cameFrom = 'home';
+
+// ── 그래프 근사 유틸(목업 한정 — 실제 바이쿼드 연산이 아니라 모양만 근사) ──────
+// 105Hz/300Hz/1kHz/4kHz/10kHz — Olive(2022) Figure 4의 Harman 타깃 형태를 딴,
+// "이 헤드폰의 원본 보정" 근사 앵커.
+const baseAnchors = [[105,2],[300,0],[1000,0],[4000,6],[10000,-2]];
+
+function dbToY(db){ return Math.max(0, Math.min(120, 60 - db*6)); }
+function catmullRomToBezier(pts){
+  let d = 'M '+pts[0][0].toFixed(1)+' '+pts[0][1].toFixed(1);
+  for(let i=0;i<pts.length-1;i++){
+    const p0 = pts[i===0?i:i-1];
+    const p1 = pts[i];
+    const p2 = pts[i+1];
+    const p3 = pts[i+2<pts.length?i+2:i+1];
+    const c1x = p1[0]+(p2[0]-p0[0])/6;
+    const c1y = p1[1]+(p2[1]-p0[1])/6;
+    const c2x = p2[0]-(p3[0]-p1[0])/6;
+    const c2y = p2[1]-(p3[1]-p1[1])/6;
+    d += ' C '+c1x.toFixed(1)+' '+c1y.toFixed(1)+', '+c2x.toFixed(1)+' '+c2y.toFixed(1)+', '+p2[0].toFixed(1)+' '+p2[1].toFixed(1);
+  }
+  return d;
+}
+function xForFreq(hz){
+  const lo = Math.log10(20), hi = Math.log10(20000);
+  return 10 + (330-10) * (Math.log10(hz)-lo)/(hi-lo);
+}
+function baseGainAt(hz){
+  if(hz <= baseAnchors[0][0]) return baseAnchors[0][1];
+  const last = baseAnchors[baseAnchors.length-1];
+  if(hz >= last[0]) return last[1];
+  for(let i=0;i<baseAnchors.length-1;i++){
+    const [f0,g0] = baseAnchors[i], [f1,g1] = baseAnchors[i+1];
+    if(hz>=f0 && hz<=f1){
+      const t = (Math.log10(hz)-Math.log10(f0))/(Math.log10(f1)-Math.log10(f0));
+      return g0 + (g1-g0)*t;
+    }
+  }
+  return 0;
+}
+// 밴드 타입별 "그럴듯한 모양" 근사 — LS/HS는 시그모이드형 쉘프, PEAKING은
+// Q가 커질수록 좁아지는 로그-주파수 종형 곡선.
+function bandContributionAt(band, hz){
+  const ratio = hz / band.freq;
+  if(band.type === 'LS'){
+    const s = Math.pow(ratio, 2*band.q);
+    return band.gain / (1+s);
+  }
+  if(band.type === 'HS'){
+    const s = Math.pow(ratio, 2*band.q);
+    return band.gain * s / (1+s);
+  }
+  const oct = Math.log2(ratio);
+  return band.gain * Math.exp(-(oct*oct) * (0.5 + band.q));
+}
+const GRAPH_FREQS = [20,31,50,80,125,200,315,500,800,1250,2000,3150,5000,8000,12500,20000];
+
+// ── 공용 편집 모델(3개 모드 전부 동일) ───────────────────────────────────────
+// base   = 이번 편집 세션이 시작된 지점(reset이 돌아갈 곳) — "진짜 원본"이거나
+//          "불러온 커스텀의 마지막 저장값" 둘 중 하나.
+// draft  = 지금 화면에서 만지고 있는 임시 편집 상태(메모리 — 실제 앱에서는
+//          SharedPreferences/DataStore로 영속화되어 재부팅해도 복원된다).
+// custom = "저장하기"를 눌러야 만들어지는, 이름 붙은 결과물. 목록에서 불러오면
+//          그 커스텀이 새 base가 되어 계속 고칠 수 있다.
+// isFromCustom = base가 "불러온 커스텀"인지 여부 — 초기화 시 질문이 1개(아니오)
+//                또는 2개(예: 이 커스텀 값 vs 진짜 원본)가 되는 걸 가른다.
+// editedIndex  = 지금 이어서 고치고 있는 커스텀의 인덱스(저장 시 새로 만들지
+//                않고 덮어씀) — null이면 저장 시 새 항목을 만든다.
+
+// ── ① Easy = EqMode.TONE — 고정 3밴드.
+//    실제 AutoEqViewModel.toneSpecs(): LS 100Hz Q0.7(저음)·P 1kHz Q0.9(중음)·HS 10kHz Q0.7(고음). ──
+const TONE_BANDS = [
+  {label:'저음', type:'LS', freq:100, q:0.7},
+  {label:'중음', type:'P', freq:1000, q:0.9},
+  {label:'고음', type:'HS', freq:10000, q:0.7},
+];
+let toneGains = [0,0,0];
+let toneBase = [0,0,0];
+let toneIsFromCustom = false;
+let toneEditedIndex = null;
+let toneCustoms = [];
+
+// ── ② Pro·그래픽 = EqMode.GRAPHIC — 고정 20밴드(로그 스케일).
+//    실제 GraphicEqBands: f_i = 20*1000^(i/19), 전 밴드 공용 크로스오버 Q. ──
+const GRAPHIC_COUNT = 20;
+const GRAPHIC_FREQS = Array.from({length:GRAPHIC_COUNT}, (_,i)=> 20*Math.pow(1000, i/(GRAPHIC_COUNT-1)));
+const GRAPHIC_Q = 1.0;
+let graphicGains = new Array(GRAPHIC_COUNT).fill(0);
+let graphicBase = new Array(GRAPHIC_COUNT).fill(0);
+let graphicIsFromCustom = false;
+let graphicEditedIndex = null;
+let graphicCustoms = [];
+
+// ── ③ Pro·파라메트릭 = EqMode.PARAMETRIC — 자유 배치 밴드(최대 10개, AutoEqProfile.MAX_FILTERS). ──
+const PARAM_MAX_BANDS = 10;
+
+// "진짜 원본" — 지금 활성 헤드폰의 실제 보정 밴드 스냅샷(예시 데이터). 이미
+// 다운로드돼 있는 실제 보정값(0dB 평탄이 아님) — baseAnchors([105,2],[300,0],
+// [1000,0],[4000,6],[10000,-2])와 같은 모양. 편집은 이 값을 그대로 불러와서
+// 시작해야 한다 — "원본을 고치는 것"인데 평탄한 무보정에서 출발하면 말이 안 된다.
+// 초기화의 "진짜 원본으로" 선택지가 항상 돌아갈 수 있는 불변의 기준점이기도 하다.
+const ORIGINAL_PROFILE_BANDS = [
+  {type:'LS', freq:105, q:0.7, gain:2},
+  {type:'P', freq:300, q:1.0, gain:0},
+  {type:'P', freq:1000, q:1.2, gain:0},
+  {type:'P', freq:4000, q:1.0, gain:6},
+  {type:'HS', freq:10000, q:0.7, gain:-2},
+];
+let paramBase = null;   // 이번 편집 세션의 시작점(base) — reset이 돌아갈 지점
+let paramDraft = null;  // 작업 중인 편집본(복사본)
+let paramIsFromCustom = false;
+let paramEditedIndex = null;
+let paramCustoms = [];  // 저장된 커스텀 프로파일 목록
+
+let uiMode = 'easy';     // 'easy' | 'pro'
+let proMode = 'graphic'; // 'graphic' | 'parametric'
+
+function formatFreq(hz){
+  return hz >= 1000 ? (hz/1000).toFixed(1)+'kHz' : hz.toFixed(0)+'Hz';
+}
+
+// ── 그래프: Easy/그래픽은 고정 그리드 게인을 원본 위에 수치로 더해 근사하고,
+//    파라메트릭은 밴드 자체가 곧 편집본이라 base/draft를 각각 그대로 합성한다.
+//    (결과 커브는 두 방식이 수학적으로 동일 — "얹기"였던 시절과 그림은 안 바뀐다.) ──
+function currentOverlayContribAt(hz){
+  if(uiMode === 'easy'){
+    return TONE_BANDS.reduce((s,spec,i)=> s + bandContributionAt({type:spec.type, freq:spec.freq, q:spec.q, gain:toneGains[i]}, hz), 0);
+  }
+  if(uiMode === 'pro' && proMode === 'graphic'){
+    let s = 0;
+    for(let i=0;i<GRAPHIC_COUNT;i++) s += bandContributionAt({type:'P', freq:GRAPHIC_FREQS[i], q:GRAPHIC_Q, gain:graphicGains[i]}, hz);
+    return s;
+  }
+  return 0; // 파라메트릭은 아래 redrawGraphs()에서 base/draft로 직접 계산한다.
+}
+function redrawGraphs(){
+  let autoPts, tunedPts;
+  if(uiMode === 'pro' && proMode === 'parametric' && paramDraft){
+    // 편집본(실선)=지금 밴드 자체의 합성, 원본(점선)=이번 편집이 시작된 스냅샷(base)의 합성.
+    autoPts = GRAPH_FREQS.map(f => [xForFreq(f), dbToY(paramBase.reduce((s,b)=>s+bandContributionAt(b,f),0))]);
+    tunedPts = GRAPH_FREQS.map(f => [xForFreq(f), dbToY(paramDraft.reduce((s,b)=>s+bandContributionAt(b,f),0))]);
+  } else {
+    // Easy/그래픽: 원본(점선)=이 헤드폰의 실제 보정, 편집본(실선)=원본+지금 조정값.
+    autoPts = GRAPH_FREQS.map(f => [xForFreq(f), dbToY(baseGainAt(f))]);
+    tunedPts = GRAPH_FREQS.map(f => [xForFreq(f), dbToY(baseGainAt(f) + currentOverlayContribAt(f))]);
+  }
+  document.getElementById('autoCurve').setAttribute('d', catmullRomToBezier(autoPts));
+  document.getElementById('tunedCurve').setAttribute('d', catmullRomToBezier(tunedPts));
+}
+
+function updateBadge(){
+  const badge = document.getElementById('auralBadge');
+  const text = document.getElementById('badgeText');
+  const icon = document.getElementById('badgeIcon');
+  if(auralOn && selectedProfileName){
+    badge.style.background = 'rgba(214,40,57,0.92)';
+    badge.style.borderColor = 'rgba(214,40,57,0.92)';
+    text.textContent = 'auraltune - ' + selectedProfileName;
+    text.style.color = '#fff';
+    icon.style.color = '#fff';
+  } else {
+    badge.style.background = 'rgba(40,40,44,0.55)';
+    badge.style.borderColor = 'rgba(255,255,255,0.28)';
+    text.textContent = 'AuralTune';
+    text.style.color = '#c9c9ce';
+    icon.style.color = '#c9c9ce';
+  }
+}
+
+function updateQsTile(){
+  const label = document.getElementById('qsLabel');
+  const icon = document.getElementById('qsIcon');
+  const tileIcon = document.getElementById('qsTileIcon');
+  if(auralOn && selectedProfileName){
+    label.textContent = 'AuralTune 켜짐 · ' + selectedProfileName;
+    icon.style.color = '#fff';
+    tileIcon.style.background = '#d62839';
+  } else {
+    label.textContent = 'AuralTune 꺼짐';
+    icon.style.color = '#8a8a90';
+    tileIcon.style.background = '#2a2a2e';
+  }
+}
+
+// 1단계(선택 후 바로 청취) ↔ 2단계(튜닝) — 프로파일 선택과는 별개의 상태.
+// 튜닝 버튼을 눌러야만 검색창이 사라지고 그래프가 위로 올라오며 Easy/Pro가 나타난다.
+let editMode = false;
+
+function toggleEditMode(){
+  editMode = !editMode;
+  applyEditModeVisibility();
+}
+function applyEditModeVisibility(){
+  const hasProfile = !!selectedProfileName;
+  document.getElementById('searchArea').style.display = editMode ? 'none' : 'block';
+  document.getElementById('tuneArea').style.display = (editMode && hasProfile) ? 'block' : 'none';
+  document.getElementById('tuningToggleBtn').textContent = editMode ? '닫기' : '튜닝';
+  if(editMode && hasProfile){
+    renderAll(); // Easy/Pro 위젯을 다시 그리고, 그 끝에서 그래프도 함께 갱신한다.
+  } else if(hasProfile){
+    // 그래프는 튜닝 화면을 닫아도(1단계에서도) 항상 보이므로, 프로파일을 새로
+    // 고르거나 닫기를 눌렀을 때도 매번 다시 그려야 한다 — 안 그러면 방금 닫은
+    // 파라메트릭 편집 곡선이 새 프로파일을 골라도 화면에 그대로 남는다.
+    redrawGraphs();
+  }
+}
+
+function updateSettingsView(){
+  const hasProfile = !!selectedProfileName;
+  document.getElementById('autoCurve').style.display = hasProfile ? 'block' : 'none';
+  document.getElementById('tunedCurve').style.display = hasProfile ? 'block' : 'none';
+  document.getElementById('emptyGraphHint').style.display = hasProfile ? 'none' : 'block';
+  document.getElementById('graphLegend').style.display = hasProfile ? 'block' : 'none';
+  document.getElementById('tuningToggleBtn').style.display = hasProfile ? 'inline-block' : 'none';
+  document.getElementById('searchText').textContent = hasProfile ? selectedProfileName : '헤드폰 또는 프로파일 검색';
+  document.getElementById('searchText').style.color = hasProfile ? '#e8e8ea' : '#8a8a90';
+  applyEditModeVisibility();
+}
+
+function showScreen(name){
+  document.getElementById('screenHome').style.display = name==='home' ? 'block' : 'none';
+  document.getElementById('screenSettings').style.display = name==='settings' ? 'block' : 'none';
+}
+
+function openSettings(from){
+  cameFrom = from;
+  document.getElementById('searchList').style.display = 'none';
+  editMode = false; // 설정에 들어올 때는 항상 1단계(선택 후 바로 청취)부터.
+  showScreen('settings');
+  updateSettingsView();
+}
+
+function goBackFromSettings(){
+  showScreen(cameFrom);
+}
+
+function toggleSearchList(){
+  const list = document.getElementById('searchList');
+  list.style.display = list.style.display === 'block' ? 'none' : 'block';
+}
+
+function selectProfile(name){
+  document.getElementById('searchList').style.display = 'none';
+  if(name === null){
+    auralOn = false;
+    selectedProfileName = null;
+  } else {
+    selectedProfileName = name;
+    auralOn = true;
+  }
+  // 선택은 항상 "1단계: 선택 후 바로 청취"로 떨어진다 — 튜닝은 매번 다시 눌러서 들어간다.
+  editMode = false;
+  // 검색창에서 프로파일을 다시 읽어 들이는 것 = 3개 모드 전부 새 편집 세션을 시작하는 것.
+  // 진짜 원본(DB)에서부터 다시 시작 — "진짜 원본이 필요하면 검색창에서 다시 불러오라"는
+  // 사용자 확정 흐름. 이전 헤드폰에서 쓰던 튜닝값은 여기 남아있지 않다 — 그 값은 이전
+  // 헤드폰의 보정 곡선을 전제로 맞춘 것이라, 새 헤드폰의 다른 보정 곡선 위에 그대로
+  // 얹히면 의도치 않은 소리(예: 이미 저음이 충분한 헤드폰에 저음 부스트가 또 얹힘)가
+  // 될 수 있다 — 조용히 넘어오는 것보다 원점에서 다시 튜닝하는 편이 안전하다.
+  // (반대로 "불러오기"로 저장된 커스텀을 여는 경우는 이 리셋 대상이 아니다 —
+  // loadToneCustom/loadGraphicCustom/loadParamCustom이 그 커스텀 자체를 새 base로
+  // 설정한다. 거긴 "이전 헤드폰 값이 새 헤드폰에 몰래 남는" 상황이 아니라, 사용자가
+  // 이름 붙여 저장해둔 특정 조합을 의도적으로 다시 불러오는 것이기 때문.)
+  toneGains = [0,0,0]; toneBase = [0,0,0]; toneIsFromCustom = false; toneEditedIndex = null;
+  graphicGains = new Array(GRAPHIC_COUNT).fill(0); graphicBase = graphicGains.slice();
+  graphicIsFromCustom = false; graphicEditedIndex = null;
+  paramBase = null; paramDraft = null; paramIsFromCustom = false; paramEditedIndex = null;
+  updateSettingsView();
+  updateBadge();
+  updateQsTile();
+}
+
+// ── 1단계: Easy ↔ Pro ────────────────────────────────────────────────────
+function setUiMode(mode){ uiMode = mode; renderAll(); }
+// ── 2단계(Pro 안): 그래픽 ↔ 파라메트릭 ──────────────────────────────────
+function setProMode(mode){
+  proMode = mode;
+  // 파라메트릭에 처음 들어오는 순간(이번 프로파일 선택 이후 아직 편집을 시작 안 했다면)
+  // 진짜 원본에서 편집 세션을 새로 튼다 — 예전엔 "직접 수정" 토글을 눌러야만 이 시점이었지만,
+  // 이제 파라메트릭은 항상 이 흐름 하나뿐이다.
+  if(mode === 'parametric' && !paramDraft) startParamFromOriginal();
+  renderAll();
+}
+// 그래픽과 같은 이유(가로/과도한 스크롤 지양)로 파라메트릭 밴드도 페이지 단위로 넘긴다.
+// 밴드 개수가 가변이라 그래픽과 달리 페이지 수를 매번 다시 계산한다.
+const PARAM_PAGE_SIZE = 3;
+let paramPage = 0;
+// "+ 밴드 추가" 타일도 페이지 그리드의 슬롯 하나를 차지하는 항목으로 계산해야 한다.
+// 안 그러면 밴드 수가 PAGE_SIZE의 배수가 될 때마다 마지막 페이지가 실밴드로 꽉 차서
+// 추가 타일이 4번째 항목으로 넘쳐 overflow:hidden 밖으로 잘려 사라진다(=더 못 추가).
+function paramTotalSlots(){
+  const bands = activeParamBands();
+  return bands.length + (bands.length < paramMax() ? 1 : 0);
+}
+function paramPageCount(){
+  return Math.max(1, Math.ceil(paramTotalSlots() / PARAM_PAGE_SIZE));
+}
+function setParamPage(delta){ goToParamPage(paramPage + delta); }
+function goToParamPage(page){
+  paramPage = clamp(page, 0, paramPageCount() - 1);
+  renderParametric();
+}
+let paramTouchStartX = null;
+function onParamTouchStart(e){ paramTouchStartX = e.touches[0].clientX; }
+function onParamTouchEnd(e){
+  if(paramTouchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - paramTouchStartX;
+  if(dx > 40) setParamPage(-1);
+  else if(dx < -40) setParamPage(1);
+  paramTouchStartX = null;
+}
+function startParamFromOriginal(){
+  // 이 편집 세션의 시작점(base) = 지금 활성 프로파일의 실제 보정 밴드 스냅샷(진짜 원본).
+  paramBase = JSON.parse(JSON.stringify(ORIGINAL_PROFILE_BANDS));
+  paramDraft = JSON.parse(JSON.stringify(ORIGINAL_PROFILE_BANDS));
+  paramIsFromCustom = false;
+  paramEditedIndex = null;
+}
+
+// ── 공용 초기화 흐름 — "버려도 되는지" + (불러온 커스텀에서 시작했다면) "어디로"
+//    두 가지를 확인한다. isFromCustom=false면 되돌아갈 곳이 원본 하나뿐이라 질문 1개.
+//    반환값: 'cancel' | 'base'(지금 이 세션의 base로) | 'original'(진짜 원본으로).
+function confirmResetTarget(isFromCustom){
+  if(!confirm('편집한 내용을 버리고 초기화할까요?')) return 'cancel';
+  if(!isFromCustom) return 'original';
+  return confirm('불러온 커스텀의 저장값으로 되돌릴까요?\n(취소를 누르면 이 헤드폰의 원본 보정으로 되돌립니다)')
+    ? 'base' : 'original';
+}
+
+function renderAll(){
+  setBtnActive('modeEasyBtn', uiMode==='easy');
+  setBtnActive('modeProBtn', uiMode==='pro');
+  document.getElementById('easyPanel').style.display = uiMode==='easy' ? 'block' : 'none';
+  document.getElementById('proPanel').style.display = uiMode==='pro' ? 'block' : 'none';
+
+  if(uiMode === 'pro'){
+    setBtnActive('proGraphicBtn', proMode==='graphic');
+    setBtnActive('proParametricBtn', proMode==='parametric');
+    document.getElementById('graphicPanel').style.display = proMode==='graphic' ? 'block' : 'none';
+    document.getElementById('parametricPanel').style.display = proMode==='parametric' ? 'block' : 'none';
+  }
+
+  if(uiMode==='easy') renderTone();
+  if(uiMode==='pro' && proMode==='graphic') renderGraphic();
+  if(uiMode==='pro' && proMode==='parametric') renderParametric();
+  redrawGraphs();
+}
+function setBtnActive(id, active){
+  const el = document.getElementById(id);
+  el.style.background = active ? '#d62839' : 'transparent';
+  el.style.color = active ? '#fff' : '#c9c9ce';
+}
+
+// ── ① Easy(톤) ────────────────────────────────────────────────────────────
+function renderTone(){
+  document.getElementById('toneRows').innerHTML = TONE_BANDS.map((spec,i) => (
+    '<div style="margin-bottom:14px;">'
+    + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">'
+    + '<span style="font-size:12px;color:#e8e8ea;font-weight:600;">'+spec.label+' <span style="font-size:10px;color:#8a8a90;font-weight:400;">'+formatFreq(spec.freq)+' · Q '+spec.q.toFixed(1)+'</span></span>'
+    + '<span id="toneVal'+i+'" style="font-size:12px;color:#d62839;font-weight:600;">'+(toneGains[i]>0?'+':'')+toneGains[i]+'dB</span>'
+    + '</div>'
+    + '<input type="range" min="-12" max="12" value="'+toneGains[i]+'" step="1" oninput="onToneChange('+i+', this.value)" style="width:100%;" />'
+    + '</div>'
+  )).join('');
+}
+function onToneChange(i, val){
+  toneGains[i] = parseFloat(val);
+  const v = document.getElementById('toneVal'+i);
+  if(v) v.textContent = (toneGains[i]>0?'+':'')+toneGains[i]+'dB';
+  redrawGraphs();
+}
+function resetTone(){
+  const target = confirmResetTarget(toneIsFromCustom);
+  if(target === 'cancel') return;
+  if(target === 'original'){
+    toneGains = [0,0,0];
+    toneBase = [0,0,0];
+    toneIsFromCustom = false;
+    toneEditedIndex = null;
+  } else {
+    toneGains = toneBase.slice();
+  }
+  renderTone(); redrawGraphs();
+}
+function saveTone(){
+  if(toneEditedIndex !== null){
+    // 이어서 고치던 커스텀 — 덮어쓴다(이름은 그대로).
+    toneCustoms[toneEditedIndex].gains = toneGains.slice();
+  } else {
+    const name = prompt('저장할 이름을 입력하세요', (selectedProfileName||'내') + ' 커스텀 ' + (toneCustoms.length+1));
+    if(!name) return;
+    toneCustoms.push({name, gains: toneGains.slice()});
+    toneEditedIndex = toneCustoms.length - 1;
+  }
+  // 저장한 지점이 이제부터 이 세션의 base — 초기화하면 여기로(또는 진짜 원본으로) 돌아간다.
+  toneBase = toneGains.slice();
+  toneIsFromCustom = true;
+}
+function loadToneCustom(i){
+  toneGains = toneCustoms[i].gains.slice();
+  toneBase = toneGains.slice();
+  toneIsFromCustom = true;
+  toneEditedIndex = i;
+  renderTone(); redrawGraphs();
+  document.getElementById('toneList').style.display = 'none';
+}
+function toggleToneList(){
+  const list = document.getElementById('toneList');
+  if(list.style.display !== 'block') renderPresetList('toneList', toneCustoms, 'loadToneCustom');
+  else list.style.display = 'none';
+}
+
+// ── ② Pro·그래픽 ──────────────────────────────────────────────────────────
+// 방송/오디오 튜닝 장비의 "세로 페이더 여러 개를 나란히" 관례는 유지하되, 화면이
+// 고정된 모바일에서는 20개를 가로로 계속 스크롤시키지 않고 5개씩 페이지로 나눠
+// 넘긴다(ViewPager 개념 — 좌우 화살표 클릭 또는 스와이프).
+const GRAPHIC_PAGE_SIZE = 5;
+const GRAPHIC_PAGE_COUNT = Math.ceil(GRAPHIC_COUNT / GRAPHIC_PAGE_SIZE);
+let graphicPage = 0;
+
+function setGraphicPage(delta){
+  goToGraphicPage(graphicPage + delta);
+}
+function goToGraphicPage(page){
+  graphicPage = clamp(page, 0, GRAPHIC_PAGE_COUNT - 1);
+  renderGraphic();
+}
+let graphicTouchStartX = null;
+function onGraphicTouchStart(e){ graphicTouchStartX = e.touches[0].clientX; }
+function onGraphicTouchEnd(e){
+  if(graphicTouchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - graphicTouchStartX;
+  if(dx > 40) setGraphicPage(-1);
+  else if(dx < -40) setGraphicPage(1);
+  graphicTouchStartX = null;
+}
+function renderGraphic(){
+  const start = graphicPage * GRAPHIC_PAGE_SIZE;
+  const end = Math.min(start + GRAPHIC_PAGE_SIZE, GRAPHIC_COUNT);
+  let html = '';
+  for(let i=start;i<end;i++){
+    const g = graphicGains[i];
+    html += '<div style="display:flex;flex-direction:column;align-items:center;width:56px;">'
+      + '<span style="font-size:10px;color:#d62839;height:14px;">'+(g!==0?((g>0?'+':'')+g):'')+'</span>'
+      + '<input type="range" min="-12" max="12" value="'+g+'" step="1" oninput="onGraphicChange('+i+', this.value)" style="width:130px;height:24px;transform:rotate(-90deg);margin:52px 0;" />'
+      + '<span style="font-size:10px;color:#5a5a60;margin-top:6px;white-space:nowrap;">'+graphicLabel(GRAPHIC_FREQS[i])+'</span>'
+      + '</div>';
+  }
+  document.getElementById('graphicFaders').innerHTML = html;
+  document.getElementById('graphicPageDots').innerHTML = Array.from({length:GRAPHIC_PAGE_COUNT}, (_,p) => (
+    '<span onclick="goToGraphicPage('+p+')" style="width:6px;height:6px;border-radius:50%;cursor:pointer;background:'+(p===graphicPage?'#d62839':'#3a3a3f')+';"></span>'
+  )).join('');
+}
+function graphicLabel(hz){
+  if(hz>=1000) return (hz/1000>=10 ? (hz/1000).toFixed(0) : (hz/1000).toFixed(1))+'k';
+  return hz.toFixed(0);
+}
+function onGraphicChange(i, val){
+  graphicGains[i] = parseFloat(val);
+  redrawGraphs();
+  const localIdx = i - graphicPage * GRAPHIC_PAGE_SIZE;
+  const row = document.getElementById('graphicFaders').children[localIdx];
+  if(row) row.firstElementChild.textContent = graphicGains[i]!==0 ? ((graphicGains[i]>0?'+':'')+graphicGains[i]) : '';
+}
+function resetGraphic(){
+  const target = confirmResetTarget(graphicIsFromCustom);
+  if(target === 'cancel') return;
+  if(target === 'original'){
+    graphicGains = new Array(GRAPHIC_COUNT).fill(0);
+    graphicBase = graphicGains.slice();
+    graphicIsFromCustom = false;
+    graphicEditedIndex = null;
+  } else {
+    graphicGains = graphicBase.slice();
+  }
+  renderGraphic(); redrawGraphs();
+}
+function saveGraphic(){
+  if(graphicEditedIndex !== null){
+    graphicCustoms[graphicEditedIndex].gains = graphicGains.slice();
+  } else {
+    const name = prompt('저장할 이름을 입력하세요', (selectedProfileName||'내') + ' 커스텀 ' + (graphicCustoms.length+1));
+    if(!name) return;
+    graphicCustoms.push({name, gains: graphicGains.slice()});
+    graphicEditedIndex = graphicCustoms.length - 1;
+  }
+  graphicBase = graphicGains.slice();
+  graphicIsFromCustom = true;
+}
+function loadGraphicCustom(i){
+  graphicGains = graphicCustoms[i].gains.slice();
+  graphicBase = graphicGains.slice();
+  graphicIsFromCustom = true;
+  graphicEditedIndex = i;
+  renderGraphic(); redrawGraphs();
+  document.getElementById('graphicList').style.display = 'none';
+}
+function toggleGraphicList(){
+  const list = document.getElementById('graphicList');
+  if(list.style.display !== 'block') renderPresetList('graphicList', graphicCustoms, 'loadGraphicCustom');
+  else list.style.display = 'none';
+}
+
+// ── ③ Pro·파라메트릭 — 다른 두 모드와 동일한 base→draft→저장(커스텀) 구조 하나만 쓴다. ──
+function activeParamBands(){ return paramDraft; }
+function paramMax(){ return PARAM_MAX_BANDS; }
+
+function renderParametric(){
+  const bands = activeParamBands();
+  const max = paramMax();
+  const totalSlots = paramTotalSlots(); // 실밴드 + (자리가 있으면) "+추가" 타일까지 포함한 슬롯 수.
+  paramPage = clamp(paramPage, 0, paramPageCount() - 1);
+  const start = paramPage * PARAM_PAGE_SIZE;
+  const end = Math.min(start + PARAM_PAGE_SIZE, totalSlots);
+  // 실제 커스텀 BandStrip과 동일한 세로 카드 — 게인은 그래픽 EQ와 같은 회전
+  // 슬라이더(방송/오디오 장비의 세로 페이더 관례), 그 아래 주파수·Q는 +/- 스테퍼.
+  // "+추가" 타일도 슬롯 하나(index === bands.length)로 취급해 페이지 안에서만 그린다 —
+  // 그래야 페이지가 실밴드 3개로 꽉 찼을 때 타일이 4번째 항목으로 넘쳐 잘리지 않는다.
+  let html = '';
+  for(let i=start;i<end;i++){
+    if(i < bands.length){
+      const b = bands[i];
+      html += '<div style="display:flex;flex-direction:column;align-items:center;width:100px;flex-shrink:0;">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:4px;">'
+        + '<span onclick="cycleParamType('+i+')" style="font-size:11px;color:#c9c9ce;cursor:pointer;text-decoration:underline dotted;">'+b.type+'</span>'
+        + '<span onclick="removeParamBand('+i+')" style="font-size:12px;color:#8a8a90;cursor:pointer;padding:0 2px;">✕</span>'
+        + '</div>'
+        + stepperHtml('paramGain'+i, (b.gain>0?'+':'')+b.gain.toFixed(1)+'dB', 'stepParamGain('+i+',-1)', 'stepParamGain('+i+',1)', 88)
+        + '<input type="range" min="-12" max="12" value="'+b.gain+'" step="0.1" oninput="onParamGainChange('+i+', this.value)" style="width:90px;height:20px;transform:rotate(-90deg);margin:34px 0;" />'
+        + stepperHtml('paramFreq'+i, formatFreq(b.freq), 'stepParamFreq('+i+',false)', 'stepParamFreq('+i+',true)', 88)
+        + '<div style="height:4px;"></div>'
+        + stepperHtml('paramQ'+i, 'Q '+b.q.toFixed(2), 'stepParamQ('+i+',-1)', 'stepParamQ('+i+',1)', 88)
+        + '</div>';
+    } else {
+      html += '<div onclick="addParamBand()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100px;flex-shrink:0;color:#8a8a90;font-size:11px;cursor:pointer;">'
+        + '<span style="font-size:20px;line-height:1;margin-bottom:6px;">+</span>밴드 추가<br>('+bands.length+'/'+max+')</div>';
+    }
+  }
+  document.getElementById('paramBandStrip').innerHTML = html;
+  document.getElementById('paramPageDots').innerHTML = Array.from({length:paramPageCount()}, (_,p) => (
+    '<span onclick="goToParamPage('+p+')" style="width:6px;height:6px;border-radius:50%;cursor:pointer;background:'+(p===paramPage?'#d62839':'#3a3a3f')+';"></span>'
+  )).join('');
+}
+// 미니 +/- 스테퍼(주파수/Q/게인 공용) — 실제 커스텀 화면의 MiniStepper(ValueStepper)와 같은 역할.
+function stepperHtml(valId, valueText, decFn, incFn, width){
+  return '<span style="display:inline-flex;align-items:center;background:#1f1f22;border-radius:8px;width:'+width+'px;flex-shrink:0;">'
+    + '<span onclick="'+decFn+'" style="width:16px;text-align:center;color:#8a8a90;cursor:pointer;font-size:11px;">−</span>'
+    + '<span id="'+valId+'" style="flex:1;text-align:center;font-size:10px;color:#e8e8ea;">'+valueText+'</span>'
+    + '<span onclick="'+incFn+'" style="width:16px;text-align:center;color:#8a8a90;cursor:pointer;font-size:11px;">+</span>'
+    + '</span>';
+}
+function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+// 드래그(슬라이더)는 값 텍스트만 갱신 — 버튼 클릭(주파수/Q/타입/추가/삭제)은 구조가 안 바뀌므로
+// 전체 재렌더링해도 안전하다(포인터 캡처를 잃을 드래그 대상이 없음).
+function onParamGainChange(i, val){
+  activeParamBands()[i].gain = parseFloat(val);
+  const g = activeParamBands()[i].gain;
+  const v = document.getElementById('paramGain'+i);
+  if(v) v.textContent = (g>0?'+':'')+g.toFixed(1)+'dB';
+  redrawGraphs();
+}
+function stepParamGain(i, dir){
+  const b = activeParamBands()[i];
+  b.gain = clamp(Math.round((b.gain + dir*0.1)*10)/10, -12, 12);
+  renderParametric(); redrawGraphs();
+}
+const FREQ_LOG_STEP = Math.pow(2, 1/6); // 6스텝/옥타브 — 실제 커스텀 화면과 동일한 배율.
+function stepParamFreq(i, up){
+  const b = activeParamBands()[i];
+  b.freq = clamp(up ? b.freq*FREQ_LOG_STEP : b.freq/FREQ_LOG_STEP, 20, 20000);
+  renderParametric(); redrawGraphs();
+}
+function stepParamQ(i, dir){
+  const b = activeParamBands()[i];
+  b.q = clamp(Math.round((b.q + dir*0.05)*100)/100, 0.1, 10);
+  renderParametric(); redrawGraphs();
+}
+function cycleParamType(i){
+  const order = ['P','LS','HS'];
+  const b = activeParamBands()[i];
+  b.type = order[(order.indexOf(b.type)+1) % order.length];
+  renderParametric(); redrawGraphs();
+}
+function addParamBand(){
+  if(activeParamBands().length >= paramMax()) return;
+  activeParamBands().push({type:'P', freq:1000, q:1.0, gain:0});
+  const newIndex = activeParamBands().length - 1;
+  paramPage = Math.floor(newIndex / PARAM_PAGE_SIZE); // 방금 추가한 밴드가 있는 페이지로.
+  renderParametric(); redrawGraphs();
+}
+function removeParamBand(i){
+  activeParamBands().splice(i,1);
+  renderParametric(); redrawGraphs();
+}
+function resetParam(){
+  // base는 "진짜 순정 원본"일 수도, "불러온 내 커스텀의 마지막 저장값"일 수도 있다 —
+  // 커스텀을 불러온 뒤에는 그 커스텀이 이 세션의 base 역할을 한다. 두 경우를 구분해
+  // 물어보고("이 커스텀 값으로" vs "진짜 원본으로"), 정한 대로 draft를 되돌린다.
+  const target = confirmResetTarget(paramIsFromCustom);
+  if(target === 'cancel') return;
+  if(target === 'original'){
+    paramBase = JSON.parse(JSON.stringify(ORIGINAL_PROFILE_BANDS));
+    paramDraft = JSON.parse(JSON.stringify(ORIGINAL_PROFILE_BANDS));
+    paramIsFromCustom = false;
+    paramEditedIndex = null;
+  } else {
+    paramDraft = JSON.parse(JSON.stringify(paramBase));
+  }
+  paramPage = 0;
+  renderParametric(); redrawGraphs();
+}
+function saveParam(){
+  if(!selectedProfileName) return;
+  if(paramEditedIndex !== null){
+    // 이어서 고치던 커스텀 — 덮어쓴다(이름은 그대로).
+    paramCustoms[paramEditedIndex].bands = JSON.parse(JSON.stringify(paramDraft));
+  } else {
+    const name = prompt('저장할 이름을 입력하세요', selectedProfileName + ' 커스텀 ' + (paramCustoms.length+1));
+    if(!name) return;
+    paramCustoms.push({name, bands: JSON.parse(JSON.stringify(paramDraft))});
+    paramEditedIndex = paramCustoms.length - 1;
+  }
+  // 저장한 지점이 이제부터 이 세션의 base — 초기화하면 여기로(또는 진짜 원본으로) 돌아간다.
+  paramBase = JSON.parse(JSON.stringify(paramDraft));
+  paramIsFromCustom = true;
+}
+function loadParamCustom(i){
+  // 저장된 커스텀을 다시 열어 고치는 경우 — base(리셋 기준)="이 커스텀의 마지막 저장 상태".
+  paramBase = JSON.parse(JSON.stringify(paramCustoms[i].bands));
+  paramDraft = JSON.parse(JSON.stringify(paramCustoms[i].bands));
+  paramIsFromCustom = true;
+  paramEditedIndex = i;
+  paramPage = 0;
+  renderParametric(); redrawGraphs();
+  document.getElementById('paramList').style.display = 'none';
+}
+function toggleParamList(){
+  const list = document.getElementById('paramList');
+  if(list.style.display !== 'block') renderPresetList('paramList', paramCustoms, 'loadParamCustom');
+  else list.style.display = 'none';
+}
+
+// ── 공용 프리셋 목록 렌더 ───────────────────────────────────────────────
+function renderPresetList(listId, items, loaderFn){
+  const list = document.getElementById(listId);
+  list.style.display = 'block';
+  list.innerHTML = items.length === 0
+    ? '<div style="padding:10px 14px;font-size:12px;color:#8a8a90;">저장된 항목 없음</div>'
+    : items.map(function(it,i){
+        return '<div onclick="'+loaderFn+'('+i+')" style="padding:10px 14px;font-size:12px;color:#e8e8ea;cursor:pointer;border-bottom:1px solid #2a2a2e;">'+it.name+'</div>';
+      }).join('');
+}
+
+let qsPressTimer = null;
+let qsLongPressed = false;
+function qsPointerDown(){
+  qsLongPressed = false;
+  qsPressTimer = setTimeout(function(){ qsLongPressed = true; openSettings('home'); }, 550);
+}
+function qsPointerUp(){
+  clearTimeout(qsPressTimer);
+  if(!qsLongPressed){
+    if(selectedProfileName){
+      auralOn = !auralOn;
+      updateBadge();
+      updateQsTile();
+    } else {
+      openSettings('home');
+    }
+  }
+}
+
+redrawGraphs();
+updateBadge();
+updateQsTile();
+updateSettingsView();
+</script>
+
+</body>
+</html>
